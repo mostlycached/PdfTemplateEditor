@@ -238,18 +238,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Generate the modified PDF with the custom cover page
-      const customizations = JSON.parse(document.customizations as string);
-      const template = await storage.getTemplate(customizations.templateId);
-      if (!template) {
-        return res.status(404).json({ message: 'Template not found' });
+      let customizations;
+      try {
+        // Handle both string and object formats of customizations
+        if (typeof document.customizations === 'string') {
+          customizations = JSON.parse(document.customizations);
+        } else {
+          customizations = document.customizations;
+        }
+
+        const template = await storage.getTemplate(customizations.templateId);
+        if (!template) {
+          return res.status(404).json({ message: 'Template not found' });
+        }
+
+        const originalPdfPath = path.resolve(process.cwd(), 'uploads', 'pdfs', document.fileName);
+        const modifiedPdfPath = path.resolve(process.cwd(), 'uploads', 'pdfs', `modified-${document.id}.pdf`);
+
+        await generateModifiedPdf(originalPdfPath, modifiedPdfPath, template, customizations);
+
+        res.download(modifiedPdfPath, document.originalName);
+      } catch (error) {
+        console.error('Download error:', error);
+        res.status(500).json({ message: 'Failed to download modified PDF' });
       }
-
-      const originalPdfPath = path.resolve(process.cwd(), 'uploads', 'pdfs', document.fileName);
-      const modifiedPdfPath = path.resolve(process.cwd(), 'uploads', 'pdfs', `modified-${document.id}.pdf`);
-
-      await generateModifiedPdf(originalPdfPath, modifiedPdfPath, template, customizations);
-
-      res.download(modifiedPdfPath, document.originalName);
     } catch (error) {
       console.error('Download error:', error);
       res.status(500).json({ message: 'Failed to download modified PDF' });
