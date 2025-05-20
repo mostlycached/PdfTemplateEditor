@@ -84,6 +84,20 @@ export default function PDFPreview({ pdfUrl, customizedCoverPage }: PDFPreviewPr
     }
     
     if (currentPage === 1 && customizedCoverPage) {
+      // For PDF cover pages
+      if (customizedCoverPage.endsWith('.pdf')) {
+        return (
+          <object 
+            data={customizedCoverPage} 
+            type="application/pdf" 
+            className="w-full h-[400px]"
+          >
+            <p>Your browser doesn't support PDF previews.</p>
+          </object>
+        );
+      }
+      
+      // For image cover pages
       return (
         <img 
           src={customizedCoverPage} 

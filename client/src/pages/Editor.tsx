@@ -86,15 +86,15 @@ export default function Editor() {
       const url = window.URL.createObjectURL(blob);
       
       // Create temporary link and trigger download
-      const a = document.createElement('a');
+      const a = window.document.createElement('a');
       a.href = url;
       a.download = document?.originalName || 'enhanced-presentation.pdf';
-      document.body.appendChild(a);
+      window.document.body.appendChild(a);
       a.click();
       
       // Clean up
       window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      window.document.body.removeChild(a);
     },
     onError: (error) => {
       toast({
@@ -156,6 +156,22 @@ export default function Editor() {
 
   const handleSelectTemplate = (template: Template) => {
     setSelectedTemplateId(template.id);
+    
+    // Initialize customizations if they don't exist yet
+    if (!customizations) {
+      setCustomizations({
+        title: "Presentation Title",
+        subtitle: "Subtitle or Tagline",
+        presenter: "",
+        date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+        colorScheme: '#0077B5',
+        fontFamily: 'Roboto',
+        titleSize: 'Medium',
+        titleAlignment: 'center',
+        backgroundStyle: 'gradient1',
+        backgroundOpacity: 100
+      });
+    }
   };
 
   const handleCustomizationChange = (newCustomizations: PDFCustomizations) => {
@@ -163,7 +179,18 @@ export default function Editor() {
   };
 
   const handleApplyChanges = () => {
-    applyChanges();
+    if (selectedTemplateId && customizations) {
+      console.log("Applying changes with template ID:", selectedTemplateId);
+      console.log("Customizations:", customizations);
+      applyChanges();
+    } else {
+      toast({
+        title: "Missing information",
+        description: "Please select a template and complete customizations before applying changes.",
+        variant: "destructive",
+        duration: 3000,
+      });
+    }
   };
 
   if (isDocumentLoading) {
