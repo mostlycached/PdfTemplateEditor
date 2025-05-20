@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400" height="300" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+  <rect x="0" y="0" width="400" height="300" fill="#111111"/>
+  <rect x="20" y="130" width="100" height="2" fill="#dddddd"/>
+  <text x="20" y="120" font-family="Arial" font-size="24" font-weight="bold" fill="#ffffff">Elegant Black</text>
+  <text x="20" y="160" font-family="Arial" font-size="14" fill="#aaaaaa">Sophisticated & Formal</text>
+  <text x="20" y="260" font-family="Arial" font-size="12" fill="#888888">Presenter Name</text>
+  <text x="20" y="280" font-family="Arial" font-size="12" fill="#888888">Date</text>
+</svg>
