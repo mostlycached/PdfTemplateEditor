@@ -10,32 +10,32 @@ export async function seedTemplates() {
       await db.insert(templates).values([
         {
           name: "Corporate Blue",
-          imagePath: "/templates/corporate-blue.jpg",
+          imagePath: "/templates/corporate-blue.svg",
           category: "Business"
         },
         {
           name: "Modern Gradient",
-          imagePath: "/templates/modern-gradient.jpg",
+          imagePath: "/templates/modern-gradient.svg",
           category: "Creative"
         },
         {
           name: "Minimal White",
-          imagePath: "/templates/minimal-white.jpg",
+          imagePath: "/templates/minimal-white.svg",
           category: "Minimalist"
         },
         {
           name: "Bold Red",
-          imagePath: "/templates/bold-red.jpg",
+          imagePath: "/templates/bold-red.svg",
           category: "Business"
         },
         {
           name: "Elegant Black",
-          imagePath: "/templates/elegant-black.jpg",
+          imagePath: "/templates/elegant-black.svg",
           category: "Formal"
         },
         {
           name: "Tech Blue",
-          imagePath: "/templates/tech-blue.jpg",
+          imagePath: "/templates/tech-blue.svg",
           category: "Technology"
         }
       ]);
