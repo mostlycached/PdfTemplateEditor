@@ -1,10 +1,22 @@
 import { 
   TextAnalyticsClient, 
   AzureKeyCredential,
-  ExtractKeyPhrasesSuccessResult,
-  RecognizeEntitiesSuccessResult,
-  CategorizedEntity
+  ExtractKeyPhrasesSuccessResult
 } from "@azure/ai-text-analytics";
+
+// Define our own types for entities since the SDK types are a bit tricky
+interface CategorizedEntity {
+  text: string;
+  category: string;
+  subCategory?: string;
+  confidenceScore: number;
+}
+
+interface RecognizeEntitiesSuccessResult {
+  id: string;
+  entities: CategorizedEntity[];
+  warnings: any[];
+}
 
 export interface LinkedInOptimizedContent {
   title: string;
