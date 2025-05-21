@@ -2,6 +2,84 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Accessibility - Focus states for keyboard navigation */
+:focus-visible {
+  outline: 2px solid #0077B5;
+  outline-offset: 2px;
+  border-radius: 0.25rem;
+}
+
+/* Helper class for onboarding highlights */
+.onboarding-highlight {
+  position: relative;
+  z-index: 45;
+  box-shadow: 0 0 0 4px rgba(0, 119, 181, 0.3);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(0, 119, 181, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(0, 119, 181, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(0, 119, 181, 0);
+  }
+}
+
+/* Progress animation for loading states */
+.progress-bar {
+  height: 4px;
+  background: linear-gradient(90deg, #0077B5, #00A0DC);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Improved loading skeleton styles */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0.06) 25%,
+    rgba(0, 0, 0, 0.1) 37%,
+    rgba(0, 0, 0, 0.06) 63%
+  );
+  background-size: 400% 100%;
+  animation: skeleton-loading 1.4s ease infinite;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
+}
+
+/* Screen reader only text */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
 :root {
       --background: 0 0% 100%;
 --foreground: 20 14.3% 4.1%;
