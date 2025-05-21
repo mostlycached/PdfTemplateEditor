@@ -19,7 +19,7 @@ export default function AzureAnalysisButton({ documentId, onAnalysisComplete }: 
     mutationFn: async () => {
       setIsLoading(true);
       try {
-        const response = await apiRequest("GET", `/api/documents/${documentId}/analyze`);
+        const response = await apiRequest("GET", `/api/documents/${documentId}/analyze`) as unknown;
         return response as { suggestedValues: PDFCustomizations, analysis: any };
       } finally {
         setIsLoading(false);
