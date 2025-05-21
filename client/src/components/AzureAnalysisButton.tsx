@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Loader2, Sparkles } from 'lucide-react';
+import { Loader2, Sparkles, BrainCircuit } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
 import { PDFCustomizations } from './CustomizationPanel';
 import { useMutation } from '@tanstack/react-query';
@@ -64,12 +64,12 @@ export default function AzureAnalysisButton({ documentId, onAnalysisComplete }: 
       {isLoading ? (
         <>
           <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-          Analyzing document...
+          Analyzing with Azure OpenAI...
         </>
       ) : (
         <>
-          <Sparkles className="h-4 w-4 mr-2" />
-          Auto-populate with LinkedIn AI
+          <BrainCircuit className="h-4 w-4 mr-2" />
+          Optimize for LinkedIn with Azure GPT
         </>
       )}
     </Button>

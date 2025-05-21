@@ -301,7 +301,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Analyze PDF for LinkedIn-optimized content
+  // Analyze PDF for LinkedIn-optimized content using Azure OpenAI
   app.get('/api/documents/:id/analyze', async (req: Request, res: Response) => {
     try {
       const documentId = parseInt(req.params.id);
@@ -324,123 +324,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Extract text from the PDF
       const pdfText = await extractTextFromPDF(pdfPath);
 
-      // Check for Azure API key
-      const azureApiKey = process.env.AZURE_TEXT_ANALYTICS_KEY;
-      const azureEndpoint = process.env.AZURE_TEXT_ANALYTICS_ENDPOINT;
+      // Check for Azure OpenAI API key
+      const azureApiKey = process.env.AZURE_OPENAI_API_KEY;
+      const azureEndpoint = process.env.AZURE_OPENAI_ENDPOINT;
 
       if (!azureApiKey || !azureEndpoint) {
         return res.status(400).json({ 
-          message: 'Azure Text Analytics API key or endpoint not configured',
+          message: 'Azure OpenAI API key or endpoint not configured',
           missingCredentials: true
         });
       }
 
-      // Import axios for HTTP requests
-      const axios = require('axios');
-
       try {
-        // Call Azure Text Analytics API to extract key phrases
-        const keyPhrasesResponse = await axios.post(
-          `${azureEndpoint}/text/analytics/v3.1/keyPhrases`,
-          {
-            documents: [
-              {
-                id: "1",
-                language: "en",
-                text: pdfText.substring(0, 5000) // Azure has limits on input text size
-              }
-            ]
-          },
-          {
-            headers: {
-              'Ocp-Apim-Subscription-Key': azureApiKey,
-              'Content-Type': 'application/json'
-            }
-          }
-        );
-
-        // Call Azure Text Analytics API to extract entities
-        const entitiesResponse = await axios.post(
-          `${azureEndpoint}/text/analytics/v3.1/entities/recognition/general`,
-          {
-            documents: [
-              {
-                id: "1",
-                language: "en",
-                text: pdfText.substring(0, 5000)
-              }
-            ]
-          },
-          {
-            headers: {
-              'Ocp-Apim-Subscription-Key': azureApiKey,
-              'Content-Type': 'application/json'
-            }
-          }
-        );
-
-        // Process the API responses
-        const keyPhrases = keyPhrasesResponse.data.documents?.[0]?.keyPhrases || [];
-        const entities = entitiesResponse.data.documents?.[0]?.entities || [];
+        // Import the Azure OpenAI service
+        const { analyzeWithAzureOpenAI } = await import('./services/azureOpenAI');
         
-        // Find people entities for presenter name
-        const people = entities
-          .filter((entity: any) => entity.category === "Person")
-          .map((entity: any) => entity.text);
+        // Use Azure OpenAI to analyze the PDF text and generate LinkedIn-optimized content
+        const openAIAnalysis = await analyzeWithAzureOpenAI(pdfText, azureApiKey, azureEndpoint);
         
-        // Find organization entities for potential subtitle
-        const organizations = entities
-          .filter((entity: any) => entity.category === "Organization")
-          .map((entity: any) => entity.text);
-          
-        // Generate title and subtitle from key phrases
-        let title = "";
-        let subtitle = "";
-        
-        const potentialTitles = keyPhrases
-          .filter((phrase: string) => phrase.split(" ").length >= 3 && phrase.length <= 50);
-        
-        if (potentialTitles.length > 0) {
-          title = potentialTitles[0];
-          if (potentialTitles.length > 1) {
-            subtitle = potentialTitles[1];
-          } else if (organizations.length > 0) {
-            subtitle = `Insights from ${organizations[0]}`;
-          }
-        } else if (keyPhrases.length > 0) {
-          title = keyPhrases[0];
-          if (organizations.length > 0) {
-            subtitle = `Presented by ${organizations[0]}`;
-          }
-        }
-        
-        // LinkedIn-optimized suggestions
+        // Combine the OpenAI analysis with our template customization format
         const suggestedValues = {
-          title: title || "Professional Presentation",
-          subtitle: subtitle || "Industry Insights & Analysis",
-          presenter: people[0] || "",
+          title: openAIAnalysis.title || "Professional Presentation",
+          subtitle: openAIAnalysis.subtitle || "Industry Insights & Analysis",
+          presenter: openAIAnalysis.presenter || "",
           date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
           colorScheme: '#0077B5', // LinkedIn blue
           fontFamily: 'Roboto',
           titleSize: 'Medium',
           titleAlignment: 'center',
           backgroundStyle: 'gradient1',
-          backgroundOpacity: 100,
-          keyPhrases: keyPhrases.slice(0, 10)
+          backgroundOpacity: 100
         };
         
         res.json({
           documentId,
           suggestedValues,
           analysis: {
-            keyPhrases: keyPhrases.slice(0, 20),
-            entities: entities.slice(0, 20)
+            summary: openAIAnalysis.professionalSummary,
+            keyPhrases: openAIAnalysis.keyPhrases
           }
         });
       } catch (azureError: any) {
-        console.error('Azure Text Analytics error:', azureError.response?.data || azureError.message);
+        console.error('Azure OpenAI error:', azureError.response?.data || azureError.message);
         res.status(500).json({ 
-          message: 'Error analyzing document with Azure Text Analytics',
+          message: 'Error analyzing document with Azure OpenAI',
           error: azureError.message
         });
       }

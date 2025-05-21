@@ -101,7 +101,7 @@ export default function CustomizationPanel({
           onAnalysisComplete={(suggestions) => setCustomizations(prev => ({...prev, ...suggestions}))} 
         />
         <div className="text-xs text-gray-500 text-center">
-          Analyze your document with Azure AI to optimize for LinkedIn sharing
+          Uses Azure OpenAI to generate LinkedIn-optimized content from your document
         </div>
       </div>
       
