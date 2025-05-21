@@ -15,9 +15,10 @@ if (typeof window === 'undefined') {
 /**
  * Extracts text content from a PDF file
  * @param filePath Path to the PDF file
+ * @param maxPages Maximum number of pages to extract (default: 3)
  * @returns A string containing the extracted text
  */
-export async function extractTextFromPDF(filePath: string): Promise<string> {
+export async function extractTextFromPDF(filePath: string, maxPages: number = 3): Promise<string> {
   try {
     // Read file as ArrayBuffer
     const data = await fs.readFile(filePath);
@@ -29,8 +30,12 @@ export async function extractTextFromPDF(filePath: string): Promise<string> {
     
     let fullText = '';
     
-    // Iterate through pages
-    for (let pageNum = 1; pageNum <= pdfDocument.numPages; pageNum++) {
+    // Determine how many pages to extract (first 3 pages or less if the document is shorter)
+    const pagesToExtract = Math.min(maxPages, pdfDocument.numPages);
+    console.log(`Extracting text from first ${pagesToExtract} pages of PDF`);
+    
+    // Iterate through the first 3 pages (or less if the document has fewer pages)
+    for (let pageNum = 1; pageNum <= pagesToExtract; pageNum++) {
       const page = await pdfDocument.getPage(pageNum);
       const textContent = await page.getTextContent();
       
@@ -39,7 +44,7 @@ export async function extractTextFromPDF(filePath: string): Promise<string> {
         .map((item: any) => item.str)
         .join(' ');
       
-      fullText += pageText + '\n\n';
+      fullText += `[Page ${pageNum}] ${pageText}\n\n`;
     }
     
     return fullText;
