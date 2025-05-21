@@ -19,18 +19,11 @@ export default function AzureAnalysisButton({ documentId, onAnalysisComplete }: 
     mutationFn: async () => {
       setIsLoading(true);
       try {
-        // The issue might be with how we're handling the response
+        // Should now get the parsed JSON directly
         const response = await apiRequest("GET", `/api/documents/${documentId}/analyze`);
         
-        // Log the raw response to see what we're getting
-        console.log("Raw API response:", response);
-        
-        // Handle both Response object and parsed JSON
-        if (response instanceof Response) {
-          const json = await response.json();
-          return json;
-        }
-        
+        // Log the response to see what we're getting
+        console.log("API response:", response);
         return response;
       } finally {
         setIsLoading(false);
