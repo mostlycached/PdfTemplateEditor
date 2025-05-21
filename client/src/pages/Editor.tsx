@@ -9,10 +9,19 @@ import TemplateSelection from '@/components/TemplateSelection';
 import CustomizationPanel, { PDFCustomizations } from '@/components/CustomizationPanel';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Download, Share2, Loader2 } from 'lucide-react';
+import { Download, Share2, Loader2, Info, CheckCircle } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
 import { Template, Document } from '@shared/schema';
 import { SiLinkedin } from 'react-icons/si';
+import { OnboardingTooltip, OnboardingStep } from '@/components/OnboardingTooltip';
+import { 
+  Breadcrumb, 
+  BreadcrumbItem, 
+  BreadcrumbLink, 
+  BreadcrumbList, 
+  BreadcrumbPage, 
+  BreadcrumbSeparator 
+} from '@/components/ui/breadcrumb';
 
 export default function Editor() {
   const search = useSearch();
