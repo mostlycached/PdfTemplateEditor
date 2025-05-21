@@ -1,7 +1,8 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { PDFDocument } from 'pdf-lib';
-import pdfParse from 'pdf-parse';
+// Import pdf-parse with require to avoid the test file load issue
+const pdfParse = require('pdf-parse/lib/pdf-parse.js');
 
 /**
  * Extracts text content from a PDF file using pdf-parse library
