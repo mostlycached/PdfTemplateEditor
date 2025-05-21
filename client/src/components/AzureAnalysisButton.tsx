@@ -19,8 +19,19 @@ export default function AzureAnalysisButton({ documentId, onAnalysisComplete }: 
     mutationFn: async () => {
       setIsLoading(true);
       try {
-        const response = await apiRequest("GET", `/api/documents/${documentId}/analyze`) as unknown;
-        return response as { suggestedValues: PDFCustomizations, analysis: any };
+        // The issue might be with how we're handling the response
+        const response = await apiRequest("GET", `/api/documents/${documentId}/analyze`);
+        
+        // Log the raw response to see what we're getting
+        console.log("Raw API response:", response);
+        
+        // Handle both Response object and parsed JSON
+        if (response instanceof Response) {
+          const json = await response.json();
+          return json;
+        }
+        
+        return response;
       } finally {
         setIsLoading(false);
       }
