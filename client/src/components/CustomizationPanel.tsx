@@ -98,7 +98,14 @@ export default function CustomizationPanel({
       <div className="mb-6">
         <AzureAnalysisButton 
           documentId={templateId} 
-          onAnalysisComplete={(suggestions) => setCustomizations(prev => ({...prev, ...suggestions}))} 
+          onAnalysisComplete={(suggestions) => {
+            console.log("Applying suggestions to form:", suggestions);
+            // Make a direct update to ensure UI reflects changes
+            setCustomizations({
+              ...customizations,
+              ...suggestions
+            });
+          }} 
         />
         <div className="text-xs text-gray-500 text-center">
           Uses Azure OpenAI to generate LinkedIn-optimized content from your document

@@ -26,13 +26,25 @@ export default function AzureAnalysisButton({ documentId, onAnalysisComplete }: 
       }
     },
     onSuccess: (data) => {
+      console.log("Azure OpenAI analysis response:", data);
       if (data.suggestedValues) {
         toast({
           title: "Document analyzed successfully",
           description: "LinkedIn-optimized values have been applied to your template",
           duration: 3000,
         });
+        
+        // Ensure we apply the suggestions - log them as well
+        console.log("Suggested template values:", data.suggestedValues);
         onAnalysisComplete(data.suggestedValues);
+      } else {
+        console.error("Missing suggestedValues in response:", data);
+        toast({
+          title: "Analysis incomplete",
+          description: "Couldn't get LinkedIn suggestions. Please try again.",
+          variant: "destructive",
+          duration: 5000,
+        });
       }
     },
     onError: (error: any) => {
