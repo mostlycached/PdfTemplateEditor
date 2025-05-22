@@ -385,56 +385,111 @@ export default function Editor() {
                 </div>
               </div>
               
-              <div className="flex flex-col md:flex-row gap-4 w-full">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Original PDF panel */}
-                <div className="flex-1 bg-white rounded-lg p-4 border border-gray-200">
+                <div className="bg-white rounded-lg p-4 border border-gray-200">
                   <div className="mb-2 text-center">
-                    <span className="inline-block bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded">ORIGINAL</span>
+                    <span className="inline-block bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-1 rounded">ORIGINAL PDF</span>
                   </div>
-                  <div className="flex items-center justify-center h-[350px] overflow-hidden">
-                    {previewUrl && (
-                      <object 
-                        data={`${previewUrl}?t=${Date.now()}`}
-                        type="application/pdf"
-                        width="100%"
-                        height="100%"
-                      >
-                        <p>Your browser doesn't support PDF previews. <a href={previewUrl} target="_blank" rel="noreferrer">Download the PDF</a> instead.</p>
-                      </object>
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-center -mx-2 -my-2 hidden md:block">
-                  <div className="bg-[#0077B5] rounded-full p-2">
-                    <ArrowRight className="h-5 w-5 text-white" />
-                  </div>
-                </div>
-
-                {/* Enhanced PDF panel */}
-                <div className="flex-1 bg-white rounded-lg p-4 border-2 border-[#0077B5]">
-                  <div className="mb-2 text-center">
-                    <span className="inline-block bg-yellow-100 text-yellow-800 text-xs font-semibold px-2.5 py-0.5 rounded">ENHANCED</span>
-                  </div>
-                  <div className="flex items-center justify-center h-[350px] overflow-hidden">
-                    {customizedCoverPageUrl ? (
-                      <object 
-                        data={`${customizedCoverPageUrl}?t=${Date.now()}`}
-                        type="application/pdf"
-                        width="100%"
-                        height="100%"
-                      >
-                        <p>Your browser doesn't support PDF previews. <a href={customizedCoverPageUrl} target="_blank" rel="noreferrer">Download the enhanced PDF</a> instead.</p>
-                      </object>
+                  
+                  <div className="bg-gray-50 rounded-md p-2 h-[350px] flex flex-col items-center justify-center">
+                    {previewUrl ? (
+                      <div className="w-full h-full">
+                        <a 
+                          href={previewUrl} 
+                          target="_blank" 
+                          rel="noreferrer"
+                          className="flex flex-col items-center justify-center h-full"
+                        >
+                          <div className="w-full h-[300px] overflow-hidden bg-gray-200 mb-2 rounded flex items-center justify-center">
+                            <img 
+                              src="/placeholder-pdf.png" 
+                              alt="PDF preview" 
+                              className="w-20 h-20 opacity-50"
+                              onError={(e) => e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLWZpbGUiPjxwYXRoIGQ9Ik0xNC41IDJINmEyIDIgMCAwIDAtMiAydjE2YTIgMiAwIDAgMCAyIDJoMTJhMiAyIDAgMCAwIDItMlY3LjVMOS45IDR6Ii8+PHBvbHlsaW5lIHBvaW50cz0iMTQgMiAxNCAxMCAyMiAxMCIvPjwvc3ZnPg=='}
+                            />
+                          </div>
+                          <span className="text-sm text-blue-600 hover:underline">Click to view original PDF</span>
+                        </a>
+                      </div>
                     ) : (
-                      <div className="text-center py-4 text-neutral-500 h-full flex flex-col justify-center items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mb-3 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <div className="text-center py-4 text-neutral-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto mb-3 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
-                        <p>Apply customizations to see your enhanced cover page</p>
+                        <p>No PDF uploaded</p>
                       </div>
                     )}
                   </div>
+                  
+                  {previewUrl && (
+                    <div className="mt-3 flex justify-center">
+                      <a 
+                        href={previewUrl} 
+                        target="_blank" 
+                        rel="noreferrer"
+                        className="flex items-center px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-sm text-gray-700 rounded-md transition-colors"
+                      >
+                        <Download className="h-4 w-4 mr-1" />
+                        Download Original
+                      </a>
+                    </div>
+                  )}
+                </div>
+
+                {/* Enhanced PDF panel */}
+                <div className="bg-white rounded-lg p-4 border-2 border-[#0077B5]">
+                  <div className="mb-2 text-center">
+                    <span className="inline-block bg-yellow-100 text-yellow-800 text-xs font-bold px-2.5 py-1 rounded">ENHANCED PDF</span>
+                  </div>
+                  
+                  <div className="bg-gray-50 rounded-md p-2 h-[350px] flex flex-col items-center justify-center">
+                    {customizedCoverPageUrl ? (
+                      <div className="w-full h-full">
+                        <a 
+                          href={customizedCoverPageUrl} 
+                          target="_blank" 
+                          rel="noreferrer"
+                          className="flex flex-col items-center justify-center h-full"
+                        >
+                          <div className="w-full h-[300px] overflow-hidden bg-[#E8F4F9] mb-2 rounded flex items-center justify-center border border-[#0077B5]">
+                            <img 
+                              src="/placeholder-enhanced-pdf.png" 
+                              alt="Enhanced PDF preview" 
+                              className="w-20 h-20 opacity-60"
+                              onError={(e) => e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiMwMDc3QjUiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1maWxlLXRleHQiPjxwYXRoIGQ9Ik0xNC41IDJINmEyIDIgMCAwIDAtMiAydjE2YTIgMiAwIDAgMCAyIDJoMTJhMiAyIDAgMCAwIDItMlY3LjVMOS45IDR6Ii8+PHBvbHlsaW5lIHBvaW50cz0iMTQgMiAxNCAxMCAyMiAxMCIvPjxwYXRoIGQ9Ik0xNiAxM0g4Ii8+PHBhdGggZD0iTTE2IDE3SDgiLz48cGF0aCBkPSJNMTAgOUg4Ii8+PC9zdmc+'}
+                            />
+                          </div>
+                          <span className="text-sm text-blue-600 hover:underline">Click to view enhanced PDF</span>
+                        </a>
+                      </div>
+                    ) : (
+                      <div className="text-center py-4 text-neutral-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto mb-3 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <p>Apply customizations to see your enhanced PDF</p>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {customizedCoverPageUrl && (
+                    <div className="mt-3 flex justify-center">
+                      <Button
+                        variant="default"
+                        className="bg-[#0077B5] hover:bg-[#006195] flex items-center"
+                        onClick={() => downloadPdf()}
+                        disabled={isDownloading}
+                      >
+                        {isDownloading ? (
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        ) : (
+                          <Download className="h-4 w-4 mr-2" />
+                        )}
+                        Download Enhanced PDF
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </div>
               
