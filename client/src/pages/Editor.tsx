@@ -372,54 +372,39 @@ export default function Editor() {
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Original PDF panel */}
-                <div className="bg-white rounded-lg p-4 border border-gray-200">
-                  <div className="mb-2 text-center">
+                <div className="bg-white rounded-lg p-8 border border-gray-200 flex flex-col items-center justify-center">
+                  <div className="mb-4 text-center">
                     <span className="inline-block bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-1 rounded">ORIGINAL PDF</span>
                   </div>
                   
-                  <div className="bg-gray-50 rounded-md p-2 h-[350px] flex flex-col items-center justify-center">
-                    {previewUrl ? (
-                      <div className="w-full h-full">
+                  <div className="text-center mb-6">
+                    <FileText size={64} className="mx-auto mb-4 text-gray-400" />
+                    <p className="text-gray-600 mb-2">Your uploaded document</p>
+                    {documentId && (
+                      <p className="text-sm text-gray-500">
                         <a 
                           href={previewUrl} 
                           target="_blank" 
                           rel="noreferrer"
-                          className="flex flex-col items-center justify-center h-full"
+                          className="text-blue-600 hover:underline"
                         >
-                          <div className="w-full h-[300px] overflow-hidden bg-gray-200 mb-2 rounded flex items-center justify-center">
-                            <img 
-                              src="/placeholder-pdf.png" 
-                              alt="PDF preview" 
-                              className="w-20 h-20 opacity-50"
-                              onError={(e) => e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLWZpbGUiPjxwYXRoIGQ9Ik0xNC41IDJINmEyIDIgMCAwIDAtMiAydjE2YTIgMiAwIDAgMCAyIDJoMTJhMiAyIDAgMCAwIDItMlY3LjVMOS45IDR6Ii8+PHBvbHlsaW5lIHBvaW50cz0iMTQgMiAxNCAxMCAyMiAxMCIvPjwvc3ZnPg=='}
-                            />
-                          </div>
-                          <span className="text-sm text-blue-600 hover:underline">Click to view original PDF</span>
+                          View original PDF
                         </a>
-                      </div>
-                    ) : (
-                      <div className="text-center py-4 text-neutral-500">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto mb-3 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        <p>No PDF uploaded</p>
-                      </div>
+                      </p>
                     )}
                   </div>
                   
-                  {previewUrl && documentId && (
-                    <div className="mt-3 flex justify-center">
-                      <Button
-                        variant="default"
-                        className="bg-[#0077B5] hover:bg-[#006195] text-white flex items-center"
-                        onClick={() => {
-                          window.location.href = `/api/documents/${documentId}/download-original`;
-                        }}
-                      >
-                        <Download className="h-4 w-4 mr-2" />
-                        Download Original PDF
-                      </Button>
-                    </div>
+                  {documentId && (
+                    <Button
+                      variant="default"
+                      className="bg-[#0077B5] hover:bg-[#006195] text-white flex items-center"
+                      onClick={() => {
+                        window.location.href = `/api/documents/${documentId}/download-original`;
+                      }}
+                    >
+                      <Download className="h-4 w-4 mr-2" />
+                      Download Original PDF
+                    </Button>
                   )}
                 </div>
 
