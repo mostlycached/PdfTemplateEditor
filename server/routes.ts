@@ -776,52 +776,317 @@ async function generateModifiedPdf(originalPdfPath: string, outputPath: string, 
     const color = hexToRgb(colorHex);
     console.log(`Using color: ${colorHex}, RGB: ${JSON.stringify(color)}`);
     
-    // Draw background
-    coverPage.drawRectangle({
-      x: 0,
-      y: 0,
-      width,
-      height,
-      color: rgb(1, 1, 1), // White background
-    });
+    // Apply different template styles based on template name
+    switch (template.name) {
+      case 'Corporate Blue':
+        // Corporate Blue style - Blue header with white body
+        coverPage.drawRectangle({
+          x: 0,
+          y: 0,
+          width,
+          height,
+          color: rgb(1, 1, 1), // White background
+        });
+        
+        // Blue header
+        coverPage.drawRectangle({
+          x: 0,
+          y: height - 120,
+          width,
+          height: 120,
+          color: rgb(0, 0.33, 0.64), // Corporate blue
+        });
+        
+        // Title in white on blue background
+        coverPage.drawText(parsedCustomizations.title || 'Presentation Title', {
+          x: getTitleX(parsedCustomizations.titleAlignment, width),
+          y: height - 70,
+          font,
+          size: getTitleSize(parsedCustomizations.titleSize),
+          color: rgb(1, 1, 1), // White text
+        });
+        
+        // Subtitle in lighter color below title
+        coverPage.drawText(parsedCustomizations.subtitle || 'Subtitle', {
+          x: 50,
+          y: height - 150,
+          font,
+          size: 18,
+          color: rgb(0.2, 0.2, 0.2),
+        });
+        
+        break;
+        
+      case 'Modern Gradient':
+        // Modern Gradient - Can't do actual gradients in PDF-lib easily, so simulate with layered rectangles
+        for (let i = 0; i < 10; i++) {
+          const t = i / 9; // 0 to 1
+          const r = 0.4 + 0.1 * t; // Gradient from purplish-blue to blue
+          const g = 0.07 + 0.16 * t;
+          const b = 0.8 - 0.1 * t;
+          
+          coverPage.drawRectangle({
+            x: 0,
+            y: i * (height / 10),
+            width,
+            height: height / 10,
+            color: rgb(r, g, b)
+          });
+        }
+        
+        // White block for content area
+        coverPage.drawRectangle({
+          x: 50,
+          y: 50,
+          width: width - 100,
+          height: height - 200,
+          color: rgb(1, 1, 1) // White
+        });
+        
+        // Title
+        coverPage.drawText(parsedCustomizations.title || 'Presentation Title', {
+          x: getTitleX(parsedCustomizations.titleAlignment, width),
+          y: height - 80,
+          font,
+          size: getTitleSize(parsedCustomizations.titleSize),
+          color: rgb(1, 1, 1) // White text
+        });
+        
+        // Subtitle
+        coverPage.drawText(parsedCustomizations.subtitle || 'Subtitle', {
+          x: getTitleX(parsedCustomizations.titleAlignment, width),
+          y: height - 120,
+          font,
+          size: 18,
+          color: rgb(1, 1, 1) // White text
+        });
+        
+        break;
+        
+      case 'Minimal White':
+        // Minimal White - Clean white background with subtle elements
+        coverPage.drawRectangle({
+          x: 0,
+          y: 0,
+          width,
+          height,
+          color: rgb(1, 1, 1), // White background
+        });
+        
+        // Subtle light gray top border
+        coverPage.drawRectangle({
+          x: 0,
+          y: height - 20,
+          width,
+          height: 20,
+          color: rgb(0.95, 0.95, 0.95), // Very light gray
+        });
+        
+        // Subtle accent line in the template color
+        coverPage.drawRectangle({
+          x: 50,
+          y: height - 180,
+          width: 100,
+          height: 3,
+          color: rgb(color.r, color.g, color.b),
+        });
+        
+        // Title in dark text
+        coverPage.drawText(parsedCustomizations.title || 'Presentation Title', {
+          x: 50,
+          y: height - 140,
+          font,
+          size: getTitleSize(parsedCustomizations.titleSize),
+          color: rgb(0.2, 0.2, 0.2), // Dark gray text
+        });
+        
+        // Subtitle in lighter color
+        coverPage.drawText(parsedCustomizations.subtitle || 'Subtitle', {
+          x: 50,
+          y: height - 180,
+          font,
+          size: 18,
+          color: rgb(0.5, 0.5, 0.5), // Medium gray
+        });
+        
+        break;
+        
+      case 'Bold Red':
+        // Bold Red - Red accent with clean layout
+        coverPage.drawRectangle({
+          x: 0,
+          y: 0,
+          width,
+          height,
+          color: rgb(1, 1, 1), // White background
+        });
+        
+        // Bold red header
+        coverPage.drawRectangle({
+          x: 0,
+          y: height - 150,
+          width,
+          height: 150,
+          color: rgb(0.8, 0, 0), // Bold red
+        });
+        
+        // Title in white on red background
+        coverPage.drawText(parsedCustomizations.title || 'Presentation Title', {
+          x: getTitleX(parsedCustomizations.titleAlignment, width),
+          y: height - 80,
+          font,
+          size: getTitleSize(parsedCustomizations.titleSize),
+          color: rgb(1, 1, 1), // White text
+        });
+        
+        // Subtitle in white on red background
+        coverPage.drawText(parsedCustomizations.subtitle || 'Subtitle', {
+          x: getTitleX(parsedCustomizations.titleAlignment, width),
+          y: height - 120,
+          font, 
+          size: 18,
+          color: rgb(1, 1, 1) // White text
+        });
+        
+        break;
+        
+      case 'Elegant Black':
+        // Elegant Black - Dark and sophisticated
+        coverPage.drawRectangle({
+          x: 0,
+          y: 0,
+          width,
+          height,
+          color: rgb(0.1, 0.1, 0.1), // Near black background
+        });
+        
+        // Subtle darker header
+        coverPage.drawRectangle({
+          x: 0,
+          y: height - 100,
+          width,
+          height: 100,
+          color: rgb(0, 0, 0), // Pure black header
+        });
+        
+        // Gold accent line
+        coverPage.drawRectangle({
+          x: 50,
+          y: height - 130,
+          width: 150,
+          height: 2,
+          color: rgb(0.85, 0.65, 0.2), // Gold accent
+        });
+        
+        // Title in white/gold
+        coverPage.drawText(parsedCustomizations.title || 'Presentation Title', {
+          x: 50,
+          y: height - 60,
+          font,
+          size: getTitleSize(parsedCustomizations.titleSize),
+          color: rgb(0.95, 0.95, 0.95), // Off-white text
+        });
+        
+        // Subtitle 
+        coverPage.drawText(parsedCustomizations.subtitle || 'Subtitle', {
+          x: 50,
+          y: height - 150,
+          font,
+          size: 18,
+          color: rgb(0.85, 0.65, 0.2), // Gold text
+        });
+        
+        break;
+        
+      case 'Tech Blue':
+        // Tech Blue - Modern tech-inspired design with blue gradient
+        coverPage.drawRectangle({
+          x: 0,
+          y: 0,
+          width,
+          height,
+          color: rgb(0.02, 0.1, 0.47), // Deep blue background
+        });
+        
+        // Light blue abstract pattern at the top
+        for (let i = 0; i < 5; i++) {
+          coverPage.drawRectangle({
+            x: 50 + (i * 20),
+            y: height - 50 - (i * 15),
+            width: 150,
+            height: 3,
+            color: rgb(0.05, 0.45, 0.9) // Light blue lines
+          });
+        }
+        
+        // White content area
+        coverPage.drawRectangle({
+          x: 40,
+          y: 40,
+          width: width - 80,
+          height: height - 200,
+          color: rgb(1, 1, 1) // White area
+        });
+        
+        // Title in bright blue
+        coverPage.drawText(parsedCustomizations.title || 'Presentation Title', {
+          x: 60,
+          y: height - 180,
+          font,
+          size: getTitleSize(parsedCustomizations.titleSize),
+          color: rgb(1, 1, 1), // White text
+        });
+        
+        // Subtitle
+        coverPage.drawText(parsedCustomizations.subtitle || 'Subtitle', {
+          x: 60, 
+          y: height - 220,
+          font,
+          size: 18,
+          color: rgb(0.05, 0.45, 0.9), // Light blue text
+        });
+        
+        break;
+        
+      default:
+        // Default style as fallback - uses the selected colors
+        coverPage.drawRectangle({
+          x: 0,
+          y: 0,
+          width,
+          height,
+          color: rgb(1, 1, 1), // White background
+        });
+        
+        // User selected color header
+        coverPage.drawRectangle({
+          x: 0,
+          y: height - 100,
+          width,
+          height: 100,
+          color: rgb(color.r, color.g, color.b), // User selected color
+        });
+        
+        // Title
+        coverPage.drawText(parsedCustomizations.title || 'Presentation Title', {
+          x: getTitleX(parsedCustomizations.titleAlignment, width),
+          y: height - 200,
+          font,
+          size: getTitleSize(parsedCustomizations.titleSize),
+          color: rgb(0, 0, 0), // Black text
+        });
+        
+        // Subtitle
+        coverPage.drawText(parsedCustomizations.subtitle || 'Subtitle', {
+          x: getTitleX(parsedCustomizations.titleAlignment, width),
+          y: height - 230,
+          font,
+          size: 18,
+          color: rgb(0.3, 0.3, 0.3), // Dark gray
+        });
+    }
     
-    // Add a colored header bar
-    coverPage.drawRectangle({
-      x: 0,
-      y: height - 100,
-      width,
-      height: 100,
-      color: rgb(color.r, color.g, color.b),
-    });
-    
-    // Add title
-    const titleSize = getTitleSize(parsedCustomizations.titleSize);
-    const titleX = getTitleX(parsedCustomizations.titleAlignment, width);
-    const title = parsedCustomizations.title || 'Presentation Title';
-    
-    console.log(`Drawing title: "${title}" at x=${titleX}, y=${height - 200}, size=${titleSize}`);
-    
-    coverPage.drawText(title, {
-      x: titleX,
-      y: height - 200,
-      font,
-      size: titleSize,
-      color: rgb(0, 0, 0),
-    });
-    
-    // Add subtitle
-    const subtitle = parsedCustomizations.subtitle || 'Subtitle';
-    console.log(`Drawing subtitle: "${subtitle}"`);
-    
-    coverPage.drawText(subtitle, {
-      x: titleX,
-      y: height - 230,
-      font,
-      size: 18,
-      color: rgb(0.3, 0.3, 0.3),
-    });
-    
-    // Add presenter name and date at the bottom
+    // Add presenter name and date at the bottom for all templates
     if (parsedCustomizations.presenter) {
       console.log(`Drawing presenter: "${parsedCustomizations.presenter}"`);
       coverPage.drawText(`Presented by: ${parsedCustomizations.presenter}`, {
@@ -844,42 +1109,32 @@ async function generateModifiedPdf(originalPdfPath: string, outputPath: string, 
       });
     }
     
-    // Copy original pages
-    console.log("Copying pages from original PDF...");
-    
-    try {
-      if (originalPdfDoc.getPageCount() > 0) {
-        // Just copy all pages from the original PDF
-        const pageIndices = Array.from({ length: originalPdfDoc.getPageCount() }, (_, i) => i);
-        console.log(`Copying ${pageIndices.length} pages from original document`);
-        
-        // Copy the pages
-        const copiedPages = await newPdfDoc.copyPages(originalPdfDoc, pageIndices);
-        
-        // Add all original pages AFTER our custom cover
-        console.log(`Adding ${copiedPages.length} pages to the document`);
-        for (const page of copiedPages) {
-          newPdfDoc.addPage(page);
-        }
-        console.log(`Successfully added all ${copiedPages.length} original content pages to document`);
-      } else {
-        console.log("Original PDF has no pages to copy");
-      }
-    } catch (copyError) {
-      console.error("Error copying pages:", copyError);
-      throw copyError;
+    // Copy all pages from the original PDF (except the first one if wanted)
+    const originalPageCount = originalPdfDoc.getPageCount();
+    if (originalPageCount > 1) {
+      console.log(`Copying ${originalPageCount - 1} pages from original PDF`);
+      const copiedPages = await newPdfDoc.copyPages(
+        originalPdfDoc, 
+        Array.from({ length: originalPageCount - 1 }, (_, i) => i + 1)
+      );
+      
+      copiedPages.forEach(page => {
+        newPdfDoc.addPage(page);
+      });
+    } else {
+      console.log('Original PDF has only one page, no additional pages to copy');
     }
     
     // Save the modified PDF
-    console.log("Saving modified PDF...");
+    console.log(`Saving modified PDF to ${outputPath}`);
     const pdfBytes = await newPdfDoc.save();
     await fs.writeFile(outputPath, pdfBytes);
+    console.log(`Modified PDF saved (${pdfBytes.length} bytes)`);
     
-    console.log(`Modified PDF saved successfully to ${outputPath} (${pdfBytes.length} bytes)`);
     return outputPath;
   } catch (error) {
-    console.error('Error generating modified PDF:', error);
-    throw error;
+    console.error('Error generating PDF:', error);
+    throw new Error(`Failed to generate modified PDF: ${(error as Error).message}`);
   }
 }
 
