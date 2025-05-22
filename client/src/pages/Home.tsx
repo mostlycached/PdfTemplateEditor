@@ -48,12 +48,18 @@ export default function Home() {
               </div>
             </div>
             
-            <Link href="#upload-section">
-              <Button className="bg-[#0077B5] hover:bg-[#006195] text-white px-6 py-3 rounded-md font-medium transition-colors duration-200">
-                Get Started Now
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </Link>
+            <Button 
+              className="bg-[#0077B5] hover:bg-[#006195] text-white px-6 py-3 rounded-md font-medium transition-colors duration-200"
+              onClick={() => {
+                const uploadSection = document.getElementById('upload-section');
+                if (uploadSection) {
+                  uploadSection.scrollIntoView({ behavior: 'smooth' });
+                }
+              }}
+            >
+              Get Started Now
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
           </div>
           
           <div className="lg:w-1/2 relative">
