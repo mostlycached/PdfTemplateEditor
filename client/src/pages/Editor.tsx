@@ -407,17 +407,18 @@ export default function Editor() {
                     )}
                   </div>
                   
-                  {previewUrl && (
+                  {previewUrl && documentId && (
                     <div className="mt-3 flex justify-center">
-                      <a 
-                        href={previewUrl} 
-                        target="_blank" 
-                        rel="noreferrer"
-                        className="flex items-center px-3 py-1.5 bg-[#0077B5] hover:bg-[#006195] text-white text-sm rounded-md transition-colors"
+                      <Button
+                        variant="default"
+                        className="bg-[#0077B5] hover:bg-[#006195] text-white flex items-center"
+                        onClick={() => {
+                          window.location.href = `/api/documents/${documentId}/download-original`;
+                        }}
                       >
-                        <Download className="h-4 w-4 mr-1" />
+                        <Download className="h-4 w-4 mr-2" />
                         Download Original PDF
-                      </a>
+                      </Button>
                     </div>
                   )}
                 </div>

@@ -152,6 +152,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: 'Failed to get preview' });
     }
   });
+  
+  // Download original PDF (without modifications)
+  app.get('/api/documents/:id/download-original', async (req: Request, res: Response) => {
+    try {
+      const documentId = parseInt(req.params.id);
+      if (isNaN(documentId)) {
+        return res.status(400).json({ message: 'Invalid document ID' });
+      }
+
+      const document = await storage.getDocument(documentId);
+      if (!document) {
+        return res.status(404).json({ message: 'Document not found' });
+      }
+
+      const filePath = path.resolve(process.cwd(), 'uploads', 'pdfs', document.fileName);
+      res.download(filePath, document.originalName);
+    } catch (error) {
+      console.error('Download original error:', error);
+      res.status(500).json({ message: 'Failed to download original PDF' });
+    }
+  });
 
   // Customize document
   app.post('/api/documents/:id/customize', async (req: Request, res: Response) => {
