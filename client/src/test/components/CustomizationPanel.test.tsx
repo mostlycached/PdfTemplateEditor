@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import CustomizationPanel, { PDFCustomizations } from '../../components/CustomizationPanel';
+import { renderWithProviders } from '../utils/test-utils';
 
 describe('CustomizationPanel Component', () => {
   const mockOnCustomizationChange = vi.fn();
@@ -25,7 +26,7 @@ describe('CustomizationPanel Component', () => {
   });
   
   it('renders the customization panel with default values', () => {
-    render(
+    renderWithProviders(
       <CustomizationPanel 
         templateId={1} 
         onCustomizationChange={mockOnCustomizationChange} 
@@ -43,7 +44,7 @@ describe('CustomizationPanel Component', () => {
   it('calls onCustomizationChange when form values change', async () => {
     const user = userEvent.setup();
     
-    render(
+    renderWithProviders(
       <CustomizationPanel 
         templateId={1} 
         onCustomizationChange={mockOnCustomizationChange} 
@@ -70,7 +71,7 @@ describe('CustomizationPanel Component', () => {
   it('calls onApplyChanges when Apply button is clicked', async () => {
     const user = userEvent.setup();
     
-    render(
+    renderWithProviders(
       <CustomizationPanel 
         templateId={1} 
         onCustomizationChange={mockOnCustomizationChange} 

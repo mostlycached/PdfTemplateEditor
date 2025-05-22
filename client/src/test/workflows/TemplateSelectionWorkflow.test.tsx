@@ -109,7 +109,9 @@ describe('Template Selection Workflow', () => {
     
     // Find and click a template
     const corporateTemplate = screen.getByText('Corporate').closest('.template-card');
-    await userEvent.click(corporateTemplate);
+    if (corporateTemplate) {
+      await userEvent.click(corporateTemplate);
+    }
     
     // Check if onSelectTemplate was called with the correct template
     expect(mockSelectTemplate).toHaveBeenCalledWith(
