@@ -49,7 +49,7 @@ describe('TemplateSelection Component', () => {
       category: 'Business'
     };
     
-    render(
+    renderWithProviders(
       <TemplateSelection 
         onSelectTemplate={mockSelectTemplate} 
       />

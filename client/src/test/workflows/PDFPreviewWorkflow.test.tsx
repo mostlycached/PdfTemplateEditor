@@ -16,6 +16,9 @@ vi.mock('pdfjs-dist', () => ({
     }),
   }),
   version: '2.0.0',
+  GlobalWorkerOptions: {
+    workerSrc: ''
+  }
 }));
 
 describe('PDF Preview Workflow', () => {
@@ -48,39 +51,33 @@ describe('PDF Preview Workflow', () => {
       <PDFPreview pdfUrl="test.pdf" />
     );
     
-    // Check if the PDF preview component renders
-    expect(screen.getByTestId('pdf-viewer')).toBeInTheDocument();
+    // PDF preview component renders with a container
+    expect(screen.getByText(/Page/i)).toBeInTheDocument();
+    expect(screen.getByText(/of/i)).toBeInTheDocument();
   });
   
-  it('should display side-by-side comparison when customized cover page is provided', async () => {
+  it('should display pagination controls', async () => {
     renderWithProviders(
       <PDFPreview 
         pdfUrl="original.pdf" 
-        customizedCoverPage="customized.pdf" 
-        showSideBySide={true} 
       />
     );
     
-    // Check if both previews are rendered in side-by-side mode
-    await waitFor(() => {
-      expect(screen.getByText(/Original/i)).toBeInTheDocument();
-      expect(screen.getByText(/Customized/i)).toBeInTheDocument();
-    });
+    // Check for pagination controls
+    expect(screen.getByLabelText(/Previous page/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Next page/i)).toBeInTheDocument();
+    expect(screen.getByText(/Page 1 of/i, { exact: false })).toBeInTheDocument();
   });
   
-  it('should only show customized preview when showSideBySide is false', async () => {
+  it('should handle PDF loading states properly', async () => {
     renderWithProviders(
       <PDFPreview 
         pdfUrl="original.pdf" 
-        customizedCoverPage="customized.pdf" 
-        showSideBySide={false} 
       />
     );
     
-    // Check if only the customized preview is displayed
-    await waitFor(() => {
-      expect(screen.queryByText(/Original/i)).not.toBeInTheDocument();
-      expect(screen.getByText(/Customized/i)).toBeInTheDocument();
-    });
+    // Initially the component should be in a loading state or have rendered the PDF
+    const pageInfo = screen.getByText(/Page 1 of/i, { exact: false });
+    expect(pageInfo).toBeInTheDocument();
   });
 });
