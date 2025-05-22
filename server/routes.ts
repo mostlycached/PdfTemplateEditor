@@ -451,7 +451,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/templates', async (req: Request, res: Response) => {
     try {
       const templates = await cosmosStorage.getAllTemplates();
-      res.json(templates);
+      
+      // Convert SVG paths to data URLs for immediate display
+      const templatesWithDataURLs = templates.map(template => {
+        // Create a basic colored rectangle for each template style
+        let svgContent = '';
+        
+        switch(template.name) {
+          case 'Corporate Blue':
+            svgContent = '<svg xmlns="http://www.w3.org/2000/svg" width="120" height="80" viewBox="0 0 120 80"><rect width="120" height="80" fill="#0055A4"/></svg>';
+            break;
+          case 'Modern Gradient':
+            svgContent = '<svg xmlns="http://www.w3.org/2000/svg" width="120" height="80" viewBox="0 0 120 80"><defs><linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#6a11cb"/><stop offset="100%" style="stop-color:#2575fc"/></linearGradient></defs><rect width="120" height="80" fill="url(#grad)"/></svg>';
+            break;
+          case 'Minimal White':
+            svgContent = '<svg xmlns="http://www.w3.org/2000/svg" width="120" height="80" viewBox="0 0 120 80"><rect width="120" height="80" fill="#FFFFFF" stroke="#E0E0E0" stroke-width="1"/></svg>';
+            break;
+          case 'Bold Red':
+            svgContent = '<svg xmlns="http://www.w3.org/2000/svg" width="120" height="80" viewBox="0 0 120 80"><rect width="120" height="80" fill="#FFFFFF"/><rect width="120" height="25" y="0" fill="#CC0000"/></svg>';
+            break;
+          case 'Elegant Black':
+            svgContent = '<svg xmlns="http://www.w3.org/2000/svg" width="120" height="80" viewBox="0 0 120 80"><rect width="120" height="80" fill="#000000"/></svg>';
+            break;
+          case 'Tech Blue':
+            svgContent = '<svg xmlns="http://www.w3.org/2000/svg" width="120" height="80" viewBox="0 0 120 80"><defs><linearGradient id="techGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#0575E6"/><stop offset="100%" style="stop-color:#021B79"/></linearGradient></defs><rect width="120" height="80" fill="url(#techGrad)"/></svg>';
+            break;
+          default:
+            svgContent = '<svg xmlns="http://www.w3.org/2000/svg" width="120" height="80" viewBox="0 0 120 80"><rect width="120" height="80" fill="#CCCCCC"/></svg>';
+        }
+        
+        // Create a data URL for the SVG
+        const dataURL = 'data:image/svg+xml;base64,' + Buffer.from(svgContent).toString('base64');
+        
+        return {
+          ...template,
+          imagePath: dataURL
+        };
+      });
+      
+      res.json(templatesWithDataURLs);
     } catch (error) {
       console.error('Get templates error:', error);
       res.status(500).json({ message: 'Failed to get templates' });
