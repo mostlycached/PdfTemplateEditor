@@ -385,12 +385,58 @@ export default function Editor() {
                 </div>
               </div>
               
-              {previewUrl && (
-                <PDFPreview 
-                  pdfUrl={previewUrl} 
-                  customizedCoverPage={customizedCoverPageUrl} 
-                />
-              )}
+              <div className="flex flex-col md:flex-row gap-4 w-full">
+                {/* Original PDF panel */}
+                <div className="flex-1 bg-white rounded-lg p-4 border border-gray-200">
+                  <div className="mb-2 text-center">
+                    <span className="inline-block bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded">ORIGINAL</span>
+                  </div>
+                  <div className="flex items-center justify-center h-[350px] overflow-hidden">
+                    {previewUrl && (
+                      <object 
+                        data={`${previewUrl}?t=${Date.now()}`}
+                        type="application/pdf"
+                        width="100%"
+                        height="100%"
+                      >
+                        <p>Your browser doesn't support PDF previews. <a href={previewUrl} target="_blank" rel="noreferrer">Download the PDF</a> instead.</p>
+                      </object>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-center -mx-2 -my-2 hidden md:block">
+                  <div className="bg-[#0077B5] rounded-full p-2">
+                    <ArrowRight className="h-5 w-5 text-white" />
+                  </div>
+                </div>
+
+                {/* Enhanced PDF panel */}
+                <div className="flex-1 bg-white rounded-lg p-4 border-2 border-[#0077B5]">
+                  <div className="mb-2 text-center">
+                    <span className="inline-block bg-yellow-100 text-yellow-800 text-xs font-semibold px-2.5 py-0.5 rounded">ENHANCED</span>
+                  </div>
+                  <div className="flex items-center justify-center h-[350px] overflow-hidden">
+                    {customizedCoverPageUrl ? (
+                      <object 
+                        data={`${customizedCoverPageUrl}?t=${Date.now()}`}
+                        type="application/pdf"
+                        width="100%"
+                        height="100%"
+                      >
+                        <p>Your browser doesn't support PDF previews. <a href={customizedCoverPageUrl} target="_blank" rel="noreferrer">Download the enhanced PDF</a> instead.</p>
+                      </object>
+                    ) : (
+                      <div className="text-center py-4 text-neutral-500 h-full flex flex-col justify-center items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mb-3 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <p>Apply customizations to see your enhanced cover page</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
               
               {!customizedCoverPageUrl && (
                 <div className="text-center py-4 text-neutral-500 border-t border-dashed border-gray-200 mt-4">
