@@ -3,20 +3,35 @@ import { type User, type InsertUser, type Document, type InsertDocument, type Te
 import { Resource } from "@azure/cosmos";
 
 // Type for mapping between our application types and Cosmos DB types
-interface CosmosUser extends Omit<User, 'id'> {
+interface CosmosUser {
   id: string;
   numericId: number;
+  username: string;
+  password: string | null;
+  email: string | null;
+  linkedinId: string | null;
+  linkedinToken: string | null;
+  profilePicture: string | null;
+  fullName: string | null;
 }
 
-interface CosmosDocument extends Omit<Document, 'id' | 'createdAt'> {
+interface CosmosDocument {
   id: string;
   numericId: number;
+  userId: number | null;
+  originalName: string;
+  fileName: string;
   createdAt: string;
+  isModified: boolean;
+  customizations: any | null;
 }
 
-interface CosmosTemplate extends Omit<Template, 'id'> {
+interface CosmosTemplate {
   id: string;
   numericId: number;
+  name: string;
+  imagePath: string;
+  category: string;
 }
 
 export interface IStorage {
@@ -146,7 +161,13 @@ export class CosmosDBStorage implements IStorage {
       const cosmosUser: CosmosUser = {
         id: String(numericId),
         numericId,
-        ...insertUser
+        username: insertUser.username,
+        password: insertUser.password || null,
+        email: insertUser.email || null,
+        linkedinId: insertUser.linkedinId || null,
+        linkedinToken: insertUser.linkedinToken || null,
+        profilePicture: insertUser.profilePicture || null,
+        fullName: insertUser.fullName || null
       };
       
       const { resource } = await container.items.create(cosmosUser);
@@ -231,9 +252,12 @@ export class CosmosDBStorage implements IStorage {
       const cosmosDocument: CosmosDocument = {
         id: String(numericId),
         numericId,
-        ...insertDocument,
+        userId: insertDocument.userId || null,
+        originalName: insertDocument.originalName,
+        fileName: insertDocument.fileName,
         createdAt: new Date().toISOString(),
-        isModified: false
+        isModified: false,
+        customizations: insertDocument.customizations || null
       };
       
       const { resource } = await container.items.create(cosmosDocument);

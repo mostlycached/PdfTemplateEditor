@@ -1,13 +1,13 @@
-import { db } from "./db";
-import { templates } from "@shared/schema";
+import { getContainer, CONTAINERS } from "./cosmos";
+import { cosmosStorage } from "./cosmosStorage";
 
 export async function seedTemplates() {
   try {
-    const existingTemplates = await db.select().from(templates);
+    const templates = await cosmosStorage.getAllTemplates();
     
     // Only seed if no templates exist
-    if (existingTemplates.length === 0) {
-      await db.insert(templates).values([
+    if (templates.length === 0) {
+      const templateData = [
         {
           name: "Corporate Blue",
           imagePath: "/templates/corporate-blue.svg",
@@ -38,7 +38,12 @@ export async function seedTemplates() {
           imagePath: "/templates/tech-blue.svg",
           category: "Technology"
         }
-      ]);
+      ];
+      
+      // Insert templates one by one
+      for (const template of templateData) {
+        await cosmosStorage.createTemplate(template);
+      }
       
       console.log("Templates seeded successfully");
     } else {
