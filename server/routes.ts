@@ -209,11 +209,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Create uploads directory if it doesn't exist
       await setupDirectories();
       
-      // Log document and template data for debugging
-      console.log('Document for customization:', JSON.stringify(document));
-      console.log('Template for customization:', JSON.stringify(template));
+      // Ensure we have proper document and template data
+      if (!document || !template) {
+        return res.status(500).json({ message: 'Invalid document or template data' });
+      }
       
-      const previewPath = await generateCustomizedCoverPreview(document, template, customizations);
+      let previewPath;
+      try {
+        previewPath = await generateCustomizedCoverPreview(document, template, customizations);
+      } catch (previewError) {
+        console.error('Preview generation error:', previewError);
+        return res.status(500).json({ message: 'Failed to generate preview' });
+      }
 
       res.json({ 
         message: 'Customizations applied successfully',
@@ -418,7 +425,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 // Helper function to generate a customized cover page preview
 async function generateCustomizedCoverPreview(document: any, template: any, customizations: any) {
   try {
-    console.log('Generating preview for document:', document.id);
+    // Check for document ID (handle both PostgreSQL and Cosmos DB formats)
+    const docId = document.numericId || document.id;
+    console.log('Generating preview for document ID:', docId);
     
     // Ensure uploads directories exist
     await setupDirectories();
@@ -517,9 +526,19 @@ async function generateCustomizedCoverPreview(document: any, template: any, cust
     
     // Save the preview - use numericId for Cosmos DB
     const pdfBytes = await pdfDoc.save();
-    const documentId = document.numericId || document.id;
-    console.log('Using document ID for preview:', documentId);
-    const previewPath = path.resolve(process.cwd(), 'uploads', 'previews', `cover-${documentId}.pdf`);
+    const docIdentifier = document.numericId || document.id;
+    console.log('Using document ID for preview:', docIdentifier);
+    
+    // Ensure the previews directory exists
+    const previewsDir = path.resolve(process.cwd(), 'uploads', 'previews');
+    try {
+      await fs.mkdir(previewsDir, { recursive: true });
+    } catch (err) {
+      console.error(`Failed to create previews directory: ${previewsDir}`, err);
+    }
+    
+    // Use the document ID from either numericId or id
+    const previewPath = path.resolve(previewsDir, `cover-${docId}.pdf`);
     await fs.writeFile(previewPath, pdfBytes);
     
     return previewPath;
