@@ -1,9 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="400" height="300" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
-  <rect x="0" y="0" width="400" height="300" fill="white"/>
-  <rect x="20" y="130" width="80" height="3" fill="#333333"/>
-  <text x="20" y="120" font-family="Arial" font-size="24" font-weight="bold" fill="#333333">Minimal</text>
-  <text x="20" y="160" font-family="Arial" font-size="14" fill="#666666">Clean and Simple</text>
-  <text x="20" y="260" font-family="Arial" font-size="12" fill="#999999">Presenter Name</text>
-  <text x="20" y="280" font-family="Arial" font-size="12" fill="#999999">Date</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="80" viewBox="0 0 120 80">
+  <rect width="120" height="80" fill="#FFFFFF" stroke="#E0E0E0" stroke-width="1"/>
+  <rect width="120" height="15" y="0" fill="#F5F5F5"/>
+  <rect width="90" height="3" x="15" y="30" fill="#333333"/>
+  <rect width="70" height="3" x="15" y="40" fill="#666666"/>
+  <rect width="50" height="3" x="15" y="60" fill="#999999"/>
 </svg>

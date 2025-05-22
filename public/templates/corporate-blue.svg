@@ -1,10 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="400" height="300" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
-  <rect x="0" y="0" width="400" height="300" fill="white"/>
-  <rect x="0" y="0" width="400" height="60" fill="#0077B5"/>
-  <rect x="20" y="100" width="360" height="5" fill="#0077B5"/>
-  <text x="20" y="90" font-family="Arial" font-size="24" font-weight="bold" fill="#333333">Corporate Blue</text>
-  <text x="20" y="140" font-family="Arial" font-size="14" fill="#666666">Professional Presentation Template</text>
-  <text x="20" y="260" font-family="Arial" font-size="12" fill="#999999">Presenter Name</text>
-  <text x="20" y="280" font-family="Arial" font-size="12" fill="#999999">Date</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="80" viewBox="0 0 120 80">
+  <rect width="120" height="80" fill="#0055A4"/>
+  <rect width="120" height="20" y="0" fill="#003366"/>
+  <rect width="90" height="4" x="15" y="30" fill="white"/>
+  <rect width="70" height="4" x="15" y="40" fill="white"/>
+  <rect width="50" height="4" x="15" y="60" fill="white"/>
 </svg>
