@@ -806,22 +806,27 @@ async function generateModifiedPdf(originalPdfPath: string, outputPath: string, 
       });
     }
     
-    // Copy all pages from original PDF
+    // Copy original pages
     console.log("Copying pages from original PDF...");
     
     try {
-      // Copy all pages from the original document
-      const pageIndices = Array.from({ length: originalPdfDoc.getPageCount() }, (_, i) => i);
-      console.log(`Copying ${pageIndices.length} pages from original document`);
-      
-      const copiedPages = await newPdfDoc.copyPages(originalPdfDoc, pageIndices);
-      
-      // Start from the second copied page (index 1) to preserve our custom cover
-      for (let i = 1; i < copiedPages.length; i++) {
-        newPdfDoc.addPage(copiedPages[i]);
+      if (originalPdfDoc.getPageCount() > 0) {
+        // Just copy all pages from the original PDF
+        const pageIndices = Array.from({ length: originalPdfDoc.getPageCount() }, (_, i) => i);
+        console.log(`Copying ${pageIndices.length} pages from original document`);
+        
+        // Copy the pages
+        const copiedPages = await newPdfDoc.copyPages(originalPdfDoc, pageIndices);
+        
+        // Add all original pages AFTER our custom cover
+        console.log(`Adding ${copiedPages.length} pages to the document`);
+        for (const page of copiedPages) {
+          newPdfDoc.addPage(page);
+        }
+        console.log(`Successfully added all ${copiedPages.length} original content pages to document`);
+      } else {
+        console.log("Original PDF has no pages to copy");
       }
-      
-      console.log(`Successfully copied ${copiedPages.length - 1} content pages to new document`);
     } catch (copyError) {
       console.error("Error copying pages:", copyError);
       throw copyError;
