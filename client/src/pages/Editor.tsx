@@ -150,7 +150,13 @@ export default function Editor() {
   // Set preview URL when document is loaded
   useEffect(() => {
     if (document) {
-      setPreviewUrl(`/api/documents/${document.id}/preview`);
+      setPreviewUrl(`/api/documents/${document.id}/preview?t=${Date.now()}`);
+      
+      // Set the customized cover page URL if document has been customized
+      if (document.isModified) {
+        setCustomizedCoverPageUrl(`/api/documents/${document.id}/cover-preview?t=${Date.now()}`);
+        setCurrentStep('preview');
+      }
       
       // If document has customizations, set them
       if (document.customizations) {

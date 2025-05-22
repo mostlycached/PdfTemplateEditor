@@ -131,11 +131,11 @@ export default function PDFPreview({ pdfUrl, customizedCoverPage, showSideBySide
             <span className="inline-block bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded">ORIGINAL</span>
           </div>
           <div className="flex items-center justify-center h-[350px] overflow-hidden">
-            <iframe
-              src={`${pdfUrl}#page=1`}
-              className="w-full h-full rounded-md shadow border border-gray-200"
-              title="Original PDF"
-            ></iframe>
+            <embed 
+              src={pdfUrl}
+              type="application/pdf"
+              className="w-full h-full rounded-md"
+            />
           </div>
         </div>
 
@@ -152,11 +152,11 @@ export default function PDFPreview({ pdfUrl, customizedCoverPage, showSideBySide
           </div>
           <div className="flex items-center justify-center h-[350px] overflow-hidden">
             {customizedCoverPage ? (
-              <iframe
+              <embed 
                 src={customizedCoverPage}
+                type="application/pdf"
                 className="w-full h-full rounded-md"
-                title="Enhanced PDF"
-              ></iframe>
+              />
             ) : (
               <div className="text-center py-4 text-neutral-500 h-full flex flex-col justify-center items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mb-3 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -183,21 +183,21 @@ export default function PDFPreview({ pdfUrl, customizedCoverPage, showSideBySide
     
     if (currentPage === 1 && customizedCoverPage) {
       return (
-        <iframe
+        <embed
           src={customizedCoverPage}
-          className="w-full h-[400px] rounded-md border border-gray-200"
-          title="Enhanced PDF"
-        ></iframe>
+          type="application/pdf"
+          className="w-full h-[400px] rounded-md"
+        />
       );
     }
     
     // Show the original PDF with page number
     return (
-      <iframe
-        src={`${pdfUrl}#page=${currentPage}`}
-        className="w-full h-[400px] rounded-md border border-gray-200"
-        title={`PDF Page ${currentPage}`}
-      ></iframe>
+      <embed
+        src={pdfUrl}
+        type="application/pdf"
+        className="w-full h-[400px] rounded-md"
+      />
     );
   };
 
