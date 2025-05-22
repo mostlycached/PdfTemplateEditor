@@ -206,6 +206,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await cosmosStorage.updateDocumentCustomizations(documentId, updatedCustomizations);
 
       // Generate a preview of the customized cover page
+      // Create uploads directory if it doesn't exist
+      await setupDirectories();
+      
+      // Log document and template data for debugging
+      console.log('Document for customization:', JSON.stringify(document));
+      console.log('Template for customization:', JSON.stringify(template));
+      
       const previewPath = await generateCustomizedCoverPreview(document, template, customizations);
 
       res.json({ 
@@ -411,6 +418,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 // Helper function to generate a customized cover page preview
 async function generateCustomizedCoverPreview(document: any, template: any, customizations: any) {
   try {
+    console.log('Generating preview for document:', document.id);
+    
+    // Ensure uploads directories exist
+    await setupDirectories();
+    
     // Create a new PDF document
     const pdfDoc = await PDFDocument.create();
     const page = pdfDoc.addPage([612, 792]); // US Letter size
@@ -503,9 +515,11 @@ async function generateCustomizedCoverPreview(document: any, template: any, cust
       });
     }
     
-    // Save the preview
+    // Save the preview - use numericId for Cosmos DB
     const pdfBytes = await pdfDoc.save();
-    const previewPath = path.resolve(process.cwd(), 'uploads', 'previews', `cover-${document.id}.pdf`);
+    const documentId = document.numericId || document.id;
+    console.log('Using document ID for preview:', documentId);
+    const previewPath = path.resolve(process.cwd(), 'uploads', 'previews', `cover-${documentId}.pdf`);
     await fs.writeFile(previewPath, pdfBytes);
     
     return previewPath;
