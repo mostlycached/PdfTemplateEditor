@@ -412,23 +412,6 @@ export default function Editor() {
                       <div className="text-center py-4 text-neutral-500">
                         <FileText size={64} className="mx-auto mb-4 text-gray-300" />
                         <p className="text-gray-600">Apply customizations to see your enhanced PDF</p>
-                        
-                        {/* Add download original link for when enhanced isn't available */}
-                        {documentId && (
-                          <div className="mt-6">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="text-[#0077B5] border-[#0077B5] hover:bg-[#0077B5]/5"
-                              onClick={() => {
-                                window.location.href = `/api/documents/${documentId}/download-original`;
-                              }}
-                            >
-                              <Download className="h-4 w-4 mr-2" />
-                              Download Original PDF
-                            </Button>
-                          </div>
-                        )}
                       </div>
                     )}
                   </div>
