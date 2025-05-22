@@ -12,21 +12,19 @@ const createTestQueryClient = () => new QueryClient({
       retry: false,
     },
   },
-  logger: {
-    log: console.log,
-    warn: console.warn,
-    error: () => {},
-  },
 });
 
 // Mock the queryClient module
-vi.mock('@lib/queryClient', () => ({
+vi.mock('../lib/queryClient', () => ({
   apiRequest: vi.fn(() => Promise.resolve({ 
     ok: true, 
     json: () => Promise.resolve({ id: 1, originalName: 'test.pdf', fileName: 'test-123.pdf' }) 
   })),
   getQueryFn: vi.fn(),
-  queryClient: createTestQueryClient(),
+  queryClient: {
+    invalidateQueries: vi.fn(),
+    setQueryData: vi.fn()
+  },
   throwIfResNotOk: vi.fn(),
 }));
 

@@ -15,10 +15,13 @@ const createTestQueryClient = () => new QueryClient({
 });
 
 // Mock api calls
-vi.mock('@lib/queryClient', () => ({
+vi.mock('../lib/queryClient', () => ({
   apiRequest: vi.fn(),
   getQueryFn: vi.fn(),
-  queryClient: createTestQueryClient(),
+  queryClient: {
+    invalidateQueries: vi.fn(),
+    setQueryData: vi.fn()
+  },
   throwIfResNotOk: vi.fn(),
 }));
 
