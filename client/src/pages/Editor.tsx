@@ -370,97 +370,68 @@ export default function Editor() {
                 </div>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Original PDF panel */}
-                <div className="bg-white rounded-lg p-8 border border-gray-200 flex flex-col items-center justify-center">
-                  <div className="mb-4 text-center">
-                    <span className="inline-block bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-1 rounded">ORIGINAL PDF</span>
-                  </div>
-                  
-                  <div className="text-center mb-6">
-                    <FileText size={64} className="mx-auto mb-4 text-gray-400" />
-                    <p className="text-gray-600 mb-2">Your uploaded document</p>
-                    {documentId && (
-                      <p className="text-sm text-gray-500">
-                        <a 
-                          href={previewUrl} 
-                          target="_blank" 
-                          rel="noreferrer"
-                          className="text-blue-600 hover:underline"
-                        >
-                          View original PDF
-                        </a>
-                      </p>
-                    )}
-                  </div>
-                  
-                  {documentId && (
-                    <Button
-                      variant="default"
-                      className="bg-[#0077B5] hover:bg-[#006195] text-white flex items-center"
-                      onClick={() => {
-                        window.location.href = `/api/documents/${documentId}/download-original`;
-                      }}
-                    >
-                      <Download className="h-4 w-4 mr-2" />
-                      Download Original PDF
-                    </Button>
-                  )}
-                </div>
-
+              <div className="grid grid-cols-1 gap-6">
                 {/* Enhanced PDF panel */}
-                <div className="bg-white rounded-lg p-4 border-2 border-[#0077B5]">
-                  <div className="mb-2 text-center">
+                <div className="bg-white rounded-lg p-6 border border-[#0077B5]">
+                  <div className="mb-4 text-center">
                     <span className="inline-block bg-yellow-100 text-yellow-800 text-xs font-bold px-2.5 py-1 rounded">ENHANCED PDF</span>
                   </div>
                   
-                  <div className="bg-gray-50 rounded-md p-2 h-[350px] flex flex-col items-center justify-center">
+                  <div className="h-[300px] flex flex-col items-center justify-center">
                     {customizedCoverPageUrl ? (
-                      <div className="w-full h-full">
+                      <div className="w-full h-full flex flex-col items-center justify-center">
                         <a 
                           href={customizedCoverPageUrl} 
                           target="_blank" 
                           rel="noreferrer"
-                          className="flex flex-col items-center justify-center h-full"
+                          className="mb-4"
                         >
-                          <div className="w-full h-[300px] overflow-hidden bg-[#E8F4F9] mb-2 rounded flex items-center justify-center border border-[#0077B5]">
-                            <img 
-                              src="/placeholder-enhanced-pdf.png" 
-                              alt="Enhanced PDF preview" 
-                              className="w-20 h-20 opacity-60"
-                              onError={(e) => e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiMwMDc3QjUiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1maWxlLXRleHQiPjxwYXRoIGQ9Ik0xNC41IDJINmEyIDIgMCAwIDAtMiAydjE2YTIgMiAwIDAgMCAyIDJoMTJhMiAyIDAgMCAwIDItMlY3LjVMOS45IDR6Ii8+PHBvbHlsaW5lIHBvaW50cz0iMTQgMiAxNCAxMCAyMiAxMCIvPjxwYXRoIGQ9Ik0xNiAxM0g4Ii8+PHBhdGggZD0iTTE2IDE3SDgiLz48cGF0aCBkPSJNMTAgOUg4Ii8+PC9zdmc+'}
-                            />
-                          </div>
-                          <span className="text-sm text-blue-600 hover:underline">Click to view enhanced PDF</span>
+                          <img 
+                            src={customizedCoverPageUrl} 
+                            alt="Enhanced PDF preview" 
+                            className="max-h-64 object-contain"
+                            onError={(e) => e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiMwMDc3QjUiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1maWxlLXRleHQiPjxwYXRoIGQ9Ik0xNC41IDJINmEyIDIgMCAwIDAtMiAydjE2YTIgMiAwIDAgMCAyIDJoMTJhMiAyIDAgMCAwIDItMlY3LjVMOS45IDR6Ii8+PHBvbHlsaW5lIHBvaW50cz0iMTQgMiAxNCAxMCAyMiAxMCIvPjxwYXRoIGQ9Ik0xNiAxM0g4Ii8+PHBhdGggZD0iTTE2IDE3SDgiLz48cGF0aCBkPSJNMTAgOUg4Ii8+PC9zdmc+'}
+                          />
                         </a>
+                        
+                        <Button
+                          variant="default"
+                          className="bg-[#0077B5] hover:bg-[#006195] text-white flex items-center"
+                          onClick={() => downloadPdf()}
+                          disabled={isDownloading}
+                        >
+                          {isDownloading ? (
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          ) : (
+                            <Download className="h-4 w-4 mr-2" />
+                          )}
+                          Download Enhanced PDF
+                        </Button>
                       </div>
                     ) : (
                       <div className="text-center py-4 text-neutral-500">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto mb-3 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        <p>Apply customizations to see your enhanced PDF</p>
+                        <FileText size={64} className="mx-auto mb-4 text-gray-300" />
+                        <p className="text-gray-600">Apply customizations to see your enhanced PDF</p>
+                        
+                        {/* Add download original link for when enhanced isn't available */}
+                        {documentId && (
+                          <div className="mt-6">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="text-[#0077B5] border-[#0077B5] hover:bg-[#0077B5]/5"
+                              onClick={() => {
+                                window.location.href = `/api/documents/${documentId}/download-original`;
+                              }}
+                            >
+                              <Download className="h-4 w-4 mr-2" />
+                              Download Original PDF
+                            </Button>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
-                  
-                  {customizedCoverPageUrl && (
-                    <div className="mt-3 flex justify-center">
-                      <Button
-                        variant="default"
-                        className="bg-[#0077B5] hover:bg-[#006195] text-white flex items-center"
-                        onClick={() => downloadPdf()}
-                        disabled={isDownloading}
-                      >
-                        {isDownloading ? (
-                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        ) : (
-                          <Download className="h-4 w-4 mr-2" />
-                        )}
-                        Download Enhanced PDF
-                      </Button>
-                    </div>
-                  )}
                 </div>
               </div>
               
