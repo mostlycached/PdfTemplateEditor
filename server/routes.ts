@@ -3,7 +3,8 @@ import { createServer, type Server } from "http";
 import { cosmosStorage } from "./cosmosStorage";
 import multer from "multer";
 import path from "path";
-import fs from "fs/promises";
+import * as fs from "fs/promises";
+import { existsSync, promises as fsPromises } from "fs";
 import { insertDocumentSchema } from "@shared/schema";
 import { z } from "zod";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
@@ -214,6 +215,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       await cosmosStorage.updateDocumentCustomizations(documentId, updatedCustomizations);
       console.log('Updated customizations successfully');
+      
+      // Also store customizations in the filesystem as a backup
+      const customizationsPath = path.resolve(process.cwd(), 'uploads', 'customizations');
+      let backupFileName = '';
+      try {
+        // Just always try to create the directory
+        await fs.mkdir(customizationsPath, { recursive: true });
+        
+        backupFileName = path.resolve(customizationsPath, `doc-${documentId}.json`);
+        await fs.writeFile(backupFileName, JSON.stringify(updatedCustomizations));
+        console.log(`Saved customizations backup to ${backupFileName}`);
+      } catch (fsError) {
+        console.error("Error saving customizations backup:", fsError);
+        // Continue even if this fails
+      }
 
       // Ensure directories exist
       await setupDirectories();
@@ -295,8 +311,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // First check if we have a customization record for this document
       const customizationsPath = path.resolve(process.cwd(), 'uploads', 'customizations');
-      if (!fs.existsSync(customizationsPath)) {
+      
+      // Try to create the directory if it doesn't exist
+      try {
         await fs.mkdir(customizationsPath, { recursive: true });
+      } catch (mkdirError) {
+        console.error(`Error creating customizations directory:`, mkdirError);
+        // Continue anyway
       }
       
       const customizationsFile = path.resolve(customizationsPath, `doc-${documentId}.json`);
@@ -304,10 +325,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Try to read the customizations data first from the filesystem as a backup
       try {
-        if (fs.existsSync(customizationsFile)) {
+        try {
+          await fs.access(customizationsFile);
           const data = await fs.readFile(customizationsFile, 'utf-8');
           customizationsData = JSON.parse(data);
           console.log(`Found customizations in file system:`, customizationsData);
+        } catch (accessError) {
+          // File doesn't exist, that's okay
+          console.log(`No customizations file found at ${customizationsFile}`);
         }
       } catch (fsError) {
         console.error(`Error reading customizations file:`, fsError);
