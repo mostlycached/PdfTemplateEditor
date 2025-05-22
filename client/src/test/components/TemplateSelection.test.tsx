@@ -1,7 +1,8 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import TemplateSelection from '../../components/TemplateSelection';
+import { renderWithProviders } from '../utils/test-utils';
 
 // Mock the fetch function for templates
 vi.mock('../../lib/queryClient', () => ({
@@ -31,7 +32,7 @@ describe('TemplateSelection Component', () => {
   const mockSelectTemplate = vi.fn();
   
   it('renders the template selection component', () => {
-    render(
+    renderWithProviders(
       <TemplateSelection 
         onSelectTemplate={mockSelectTemplate} 
       />
