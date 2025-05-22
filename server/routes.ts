@@ -293,6 +293,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log(`Attempting to download document with ID: ${documentId}`);
 
+      // First check if we have a customization record for this document
+      const customizationsPath = path.resolve(process.cwd(), 'uploads', 'customizations');
+      if (!fs.existsSync(customizationsPath)) {
+        await fs.mkdir(customizationsPath, { recursive: true });
+      }
+      
+      const customizationsFile = path.resolve(customizationsPath, `doc-${documentId}.json`);
+      let customizationsData = null;
+      
+      // Try to read the customizations data first from the filesystem as a backup
+      try {
+        if (fs.existsSync(customizationsFile)) {
+          const data = await fs.readFile(customizationsFile, 'utf-8');
+          customizationsData = JSON.parse(data);
+          console.log(`Found customizations in file system:`, customizationsData);
+        }
+      } catch (fsError) {
+        console.error(`Error reading customizations file:`, fsError);
+      }
+      
+      // Get the document from Cosmos DB
       const document = await cosmosStorage.getDocument(documentId);
       if (!document) {
         console.error(`Document with ID ${documentId} not found for download`);
@@ -301,23 +322,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       console.log(`Retrieved document for download:`, JSON.stringify(document));
 
-      // Check if document has customizations
-      if (!document.customizations) {
+      // Check if document has customizations - use filesystem backup if database version not available
+      let documentCustomizations = document.customizations;
+      
+      if (!documentCustomizations && customizationsData) {
+        console.log('Using customizations from filesystem backup');
+        documentCustomizations = customizationsData;
+        
+        // Update the document in Cosmos DB with the backup customizations
+        try {
+          await cosmosStorage.updateDocumentCustomizations(documentId, documentCustomizations);
+          console.log('Updated document in Cosmos DB with backup customizations');
+        } catch (updateError) {
+          console.error('Failed to update Cosmos DB with backup customizations:', updateError);
+          // Continue with the backup data anyway
+        }
+      }
+      
+      if (!documentCustomizations) {
         console.log(`No customizations found, returning original file`);
         const filePath = path.resolve(process.cwd(), 'uploads', 'pdfs', document.fileName);
         return res.download(filePath, document.originalName);
       }
 
       // Generate the modified PDF with the custom cover page
-      let customizations;
+      let customizations = documentCustomizations;
       try {
-        // Handle both string and object formats of customizations
-        if (typeof document.customizations === 'string') {
-          customizations = JSON.parse(document.customizations);
+        // We don't need to parse again as our CosmosStorage class already handles this
+        // but keep the type checking for safety
+        if (typeof customizations === 'string') {
+          customizations = JSON.parse(customizations);
           console.log(`Parsed customizations from string:`, customizations);
-        } else {
-          customizations = document.customizations;
-          console.log(`Using customizations from object:`, customizations);
         }
 
         const templateId = customizations.templateId;
@@ -340,6 +375,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Use the document ID for the modified file path
         const modifiedPdfPath = path.resolve(process.cwd(), 'uploads', 'pdfs', `modified-${documentId}.pdf`);
         console.log(`Modified PDF will be saved at: ${modifiedPdfPath}`);
+
+        // Save a backup of the customizations to the filesystem
+        try {
+          await fs.writeFile(customizationsFile, JSON.stringify(customizations));
+          console.log(`Saved customizations backup to ${customizationsFile}`);
+        } catch (fsError) {
+          console.error(`Error saving customizations backup:`, fsError);
+          // Continue anyway as this is just a backup
+        }
 
         // Generate a fresh modified PDF each time
         await generateModifiedPdf(originalPdfPath, modifiedPdfPath, template, customizations);

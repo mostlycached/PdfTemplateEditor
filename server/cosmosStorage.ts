@@ -82,10 +82,30 @@ export class CosmosDBStorage implements IStorage {
   }
 
   private toAppDocument(cosmosDoc: CosmosDocument & Resource): Document {
-    const { id, numericId, createdAt, ...rest } = cosmosDoc;
+    const { id, numericId, createdAt, customizations, ...rest } = cosmosDoc;
+    
+    // Handle customizations properly - parse JSON string if needed
+    let parsedCustomizations = null;
+    if (customizations) {
+      try {
+        // If it's a string, parse it; otherwise use as is
+        parsedCustomizations = typeof customizations === 'string' 
+          ? JSON.parse(customizations) 
+          : customizations;
+          
+        console.log(`Parsed customizations for document ${numericId}:`, 
+          typeof parsedCustomizations === 'object' ? JSON.stringify(parsedCustomizations) : parsedCustomizations);
+      } catch (error) {
+        console.error(`Error parsing customizations for document ${numericId}:`, error);
+        // Keep the original value if parsing fails
+        parsedCustomizations = customizations;
+      }
+    }
+    
     return {
       id: numericId,
       createdAt: new Date(createdAt),
+      customizations: parsedCustomizations,
       ...rest
     };
   }
