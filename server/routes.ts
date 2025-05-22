@@ -604,18 +604,43 @@ async function generateCustomizedCoverPreview(document: any, template: any, cust
 // Helper function to generate the modified PDF with custom cover page
 async function generateModifiedPdf(originalPdfPath: string, outputPath: string, template: any, customizations: any) {
   try {
+    console.log("Starting PDF generation with the following inputs:");
+    console.log("Original PDF path:", originalPdfPath);
+    console.log("Output path:", outputPath);
+    console.log("Template:", JSON.stringify(template));
+    console.log("Customizations (raw):", JSON.stringify(customizations));
+    
+    // Ensure customizations is properly parsed (handle both string and object formats)
+    let parsedCustomizations = customizations;
+    if (typeof customizations === 'string') {
+      try {
+        parsedCustomizations = JSON.parse(customizations);
+        console.log("Parsed customizations from string:", JSON.stringify(parsedCustomizations));
+      } catch (parseError) {
+        console.error("Error parsing customizations string:", parseError);
+        // Continue with original customizations as fallback
+      }
+    }
+    
     // Load the original PDF
     const originalPdfBytes = await fs.readFile(originalPdfPath);
+    console.log(`Loaded original PDF (${originalPdfBytes.length} bytes)`);
+    
     const originalPdfDoc = await PDFDocument.load(originalPdfBytes);
+    console.log(`Original PDF has ${originalPdfDoc.getPageCount()} pages`);
     
     // Create a new PDF document
     const newPdfDoc = await PDFDocument.create();
+    console.log("Created new PDF document");
     
     // Add customized cover page
     const coverPage = newPdfDoc.addPage([612, 792]); // US Letter size
+    console.log("Added cover page to new PDF");
     
     // Load a standard font
-    const fontFamily = customizations.fontFamily || 'Helvetica';
+    const fontFamily = parsedCustomizations.fontFamily || 'Helvetica';
+    console.log(`Using font family: ${fontFamily}`);
+    
     let font;
     switch (fontFamily) {
       case 'Roboto':
@@ -637,10 +662,12 @@ async function generateModifiedPdf(originalPdfPath: string, outputPath: string, 
     
     // Set background (simplified implementation)
     const { width, height } = coverPage.getSize();
+    console.log(`Cover page size: ${width}x${height}`);
     
     // Convert color to rgb values (0-1)
-    const colorHex = customizations.colorScheme || '#0077B5';
+    const colorHex = parsedCustomizations.colorScheme || '#0077B5';
     const color = hexToRgb(colorHex);
+    console.log(`Using color: ${colorHex}, RGB: ${JSON.stringify(color)}`);
     
     // Draw background
     coverPage.drawRectangle({
@@ -661,10 +688,13 @@ async function generateModifiedPdf(originalPdfPath: string, outputPath: string, 
     });
     
     // Add title
-    const titleSize = getTitleSize(customizations.titleSize);
-    const titleX = getTitleX(customizations.titleAlignment, width);
+    const titleSize = getTitleSize(parsedCustomizations.titleSize);
+    const titleX = getTitleX(parsedCustomizations.titleAlignment, width);
+    const title = parsedCustomizations.title || 'Presentation Title';
     
-    coverPage.drawText(customizations.title || 'Presentation Title', {
+    console.log(`Drawing title: "${title}" at x=${titleX}, y=${height - 200}, size=${titleSize}`);
+    
+    coverPage.drawText(title, {
       x: titleX,
       y: height - 200,
       font,
@@ -673,7 +703,10 @@ async function generateModifiedPdf(originalPdfPath: string, outputPath: string, 
     });
     
     // Add subtitle
-    coverPage.drawText(customizations.subtitle || 'Subtitle', {
+    const subtitle = parsedCustomizations.subtitle || 'Subtitle';
+    console.log(`Drawing subtitle: "${subtitle}"`);
+    
+    coverPage.drawText(subtitle, {
       x: titleX,
       y: height - 230,
       font,
@@ -682,8 +715,9 @@ async function generateModifiedPdf(originalPdfPath: string, outputPath: string, 
     });
     
     // Add presenter name and date at the bottom
-    if (customizations.presenter) {
-      coverPage.drawText(`Presented by: ${customizations.presenter}`, {
+    if (parsedCustomizations.presenter) {
+      console.log(`Drawing presenter: "${parsedCustomizations.presenter}"`);
+      coverPage.drawText(`Presented by: ${parsedCustomizations.presenter}`, {
         x: 50,
         y: 100,
         font,
@@ -692,8 +726,9 @@ async function generateModifiedPdf(originalPdfPath: string, outputPath: string, 
       });
     }
     
-    if (customizations.date) {
-      coverPage.drawText(customizations.date, {
+    if (parsedCustomizations.date) {
+      console.log(`Drawing date: "${parsedCustomizations.date}"`);
+      coverPage.drawText(parsedCustomizations.date, {
         x: 50,
         y: 70,
         font,
@@ -702,19 +737,33 @@ async function generateModifiedPdf(originalPdfPath: string, outputPath: string, 
       });
     }
     
-    // Copy all pages except first from original PDF
-    if (originalPdfDoc.getPageCount() > 1) {
-      const pageIndices = Array.from({ length: originalPdfDoc.getPageCount() - 1 }, (_, i) => i + 1);
+    // Copy all pages from original PDF
+    console.log("Copying pages from original PDF...");
+    
+    try {
+      // Copy all pages from the original document
+      const pageIndices = Array.from({ length: originalPdfDoc.getPageCount() }, (_, i) => i);
+      console.log(`Copying ${pageIndices.length} pages from original document`);
+      
       const copiedPages = await newPdfDoc.copyPages(originalPdfDoc, pageIndices);
-      copiedPages.forEach(page => {
-        newPdfDoc.addPage(page);
-      });
+      
+      // Start from the second copied page (index 1) to preserve our custom cover
+      for (let i = 1; i < copiedPages.length; i++) {
+        newPdfDoc.addPage(copiedPages[i]);
+      }
+      
+      console.log(`Successfully copied ${copiedPages.length - 1} content pages to new document`);
+    } catch (copyError) {
+      console.error("Error copying pages:", copyError);
+      throw copyError;
     }
     
     // Save the modified PDF
+    console.log("Saving modified PDF...");
     const pdfBytes = await newPdfDoc.save();
     await fs.writeFile(outputPath, pdfBytes);
     
+    console.log(`Modified PDF saved successfully to ${outputPath} (${pdfBytes.length} bytes)`);
     return outputPath;
   } catch (error) {
     console.error('Error generating modified PDF:', error);
