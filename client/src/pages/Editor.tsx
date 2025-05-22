@@ -52,15 +52,19 @@ export default function Editor() {
         throw new Error("Missing required data");
       }
       
-      const response = await apiRequest("POST", `/api/documents/${documentId}/customize`, {
+      // The apiRequest function already returns the JSON parsed data
+      return await apiRequest("POST", `/api/documents/${documentId}/customize`, {
         templateId: selectedTemplateId,
         customizations
       });
-      
-      return response.json();
     },
     onSuccess: (data) => {
-      setCustomizedCoverPageUrl(data.previewUrl);
+      if (data && data.previewUrl) {
+        setCustomizedCoverPageUrl(data.previewUrl);
+      } else if (data && data.coverPreviewUrl) {
+        setCustomizedCoverPageUrl(data.coverPreviewUrl);
+      }
+      
       toast({
         title: "Changes applied successfully",
         duration: 3000,
@@ -217,15 +221,30 @@ export default function Editor() {
 
   const handleApplyChanges = () => {
     if (selectedTemplateId && customizations) {
-      applyChanges();
-      // Show feedback to user while changes are being applied
-      if (!isApplying) {
-        setShowFeedback(true);
-        setTimeout(() => setShowFeedback(false), 3000);
-      }
+      // Track the document ID we're customizing
+      const currentDocId = documentId;
       
-      // Move to preview step after applying changes
-      setCurrentStep('preview');
+      // Show feedback to user while changes are being applied
+      setShowFeedback(true);
+      
+      // Call the API to apply customizations
+      applyChanges();
+      
+      // Set a timeout to update UI and hide feedback
+      setTimeout(() => {
+        setShowFeedback(false);
+        
+        // If the document ID is still the same, proceed with UI updates
+        if (currentDocId === documentId) {
+          // Move to preview step after applying changes
+          setCurrentStep('preview');
+          
+          // Force refresh preview URL to ensure the latest version is shown
+          if (documentId) {
+            setCustomizedCoverPageUrl(`/api/documents/${documentId}/cover-preview?t=${Date.now()}`);
+          }
+        }
+      }, 2000);
     } else {
       toast({
         title: "Missing information",
