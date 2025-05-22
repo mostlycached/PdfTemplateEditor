@@ -1,6 +1,6 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
+import { cosmosStorage } from "./cosmosStorage";
 import multer from "multer";
 import path from "path";
 import fs from "fs/promises";
@@ -81,7 +81,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userId = req.session.passport.user;
       }
 
-      const document = await storage.createDocument({
+      const document = await cosmosStorage.createDocument({
         userId: userId,
         originalName: req.file.originalname,
         fileName: req.file.filename,
@@ -108,7 +108,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'Invalid document ID' });
       }
 
-      const document = await storage.getDocument(documentId);
+      const document = await cosmosStorage.getDocument(documentId);
       if (!document) {
         return res.status(404).json({ message: 'Document not found' });
       }
@@ -124,7 +124,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/documents/recent', isAuthenticated, async (req: Request, res: Response) => {
     try {
       const userId = req.session.passport.user;
-      const documents = await storage.getRecentDocuments(userId);
+      const documents = await cosmosStorage.getRecentDocuments(userId);
       res.json(documents);
     } catch (error) {
       console.error('Get recent documents error:', error);
@@ -140,7 +140,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'Invalid document ID' });
       }
 
-      const document = await storage.getDocument(documentId);
+      const document = await cosmosStorage.getDocument(documentId);
       if (!document) {
         return res.status(404).json({ message: 'Document not found' });
       }
@@ -161,7 +161,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'Invalid document ID' });
       }
 
-      const document = await storage.getDocument(documentId);
+      const document = await cosmosStorage.getDocument(documentId);
       if (!document) {
         return res.status(404).json({ message: 'Document not found' });
       }
@@ -182,7 +182,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'Invalid document ID' });
       }
 
-      const document = await storage.getDocument(documentId);
+      const document = await cosmosStorage.getDocument(documentId);
       if (!document) {
         return res.status(404).json({ message: 'Document not found' });
       }
@@ -192,7 +192,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'Template ID and customizations are required' });
       }
 
-      const template = await storage.getTemplate(templateId);
+      const template = await cosmosStorage.getTemplate(templateId);
       if (!template) {
         return res.status(404).json({ message: 'Template not found' });
       }
@@ -203,7 +203,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         templateId,
       };
 
-      await storage.updateDocumentCustomizations(documentId, updatedCustomizations);
+      await cosmosStorage.updateDocumentCustomizations(documentId, updatedCustomizations);
 
       // Generate a preview of the customized cover page
       const previewPath = await generateCustomizedCoverPreview(document, template, customizations);
@@ -226,7 +226,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'Invalid document ID' });
       }
 
-      const document = await storage.getDocument(documentId);
+      const document = await cosmosStorage.getDocument(documentId);
       if (!document) {
         return res.status(404).json({ message: 'Document not found' });
       }
@@ -247,7 +247,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'Invalid document ID' });
       }
 
-      const document = await storage.getDocument(documentId);
+      const document = await cosmosStorage.getDocument(documentId);
       if (!document) {
         return res.status(404).json({ message: 'Document not found' });
       }
@@ -268,7 +268,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           customizations = document.customizations;
         }
 
-        const template = await storage.getTemplate(customizations.templateId);
+        const template = await cosmosStorage.getTemplate(customizations.templateId);
         if (!template) {
           return res.status(404).json({ message: 'Template not found' });
         }
@@ -297,7 +297,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'Invalid document ID' });
       }
 
-      const document = await storage.getDocument(documentId);
+      const document = await cosmosStorage.getDocument(documentId);
       if (!document) {
         return res.status(404).json({ message: 'Document not found' });
       }
@@ -314,7 +314,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get templates
   app.get('/api/templates', async (req: Request, res: Response) => {
     try {
-      const templates = await storage.getAllTemplates();
+      const templates = await cosmosStorage.getAllTemplates();
       res.json(templates);
     } catch (error) {
       console.error('Get templates error:', error);
@@ -331,7 +331,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Get document from storage
-      const document = await storage.getDocument(documentId);
+      const document = await cosmosStorage.getDocument(documentId);
       if (!document) {
         return res.status(404).json({ message: 'Document not found' });
       }

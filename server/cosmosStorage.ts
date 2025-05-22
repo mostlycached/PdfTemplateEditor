@@ -2,6 +2,23 @@ import { getContainer, CONTAINERS } from "./cosmos";
 import { type User, type InsertUser, type Document, type InsertDocument, type Template, type InsertTemplate } from "@shared/schema";
 import { Resource } from "@azure/cosmos";
 
+// Type for mapping between our application types and Cosmos DB types
+interface CosmosUser extends Omit<User, 'id'> {
+  id: string;
+  numericId: number;
+}
+
+interface CosmosDocument extends Omit<Document, 'id' | 'createdAt'> {
+  id: string;
+  numericId: number;
+  createdAt: string;
+}
+
+interface CosmosTemplate extends Omit<Template, 'id'> {
+  id: string;
+  numericId: number;
+}
+
 export interface IStorage {
   // User operations
   getUser(id: number): Promise<User | undefined>;
@@ -28,7 +45,7 @@ export class CosmosDBStorage implements IStorage {
     try {
       const container = await getContainer(containerName);
       const querySpec = {
-        query: "SELECT VALUE MAX(c.id) FROM c"
+        query: "SELECT VALUE MAX(c.numericId) FROM c"
       };
       
       const { resources } = await container.items.query(querySpec).fetchAll();
@@ -40,12 +57,45 @@ export class CosmosDBStorage implements IStorage {
     }
   }
 
+  // Helper functions to convert between app types and Cosmos types
+  private toAppUser(cosmosUser: CosmosUser & Resource): User {
+    const { id, numericId, ...rest } = cosmosUser;
+    return {
+      id: numericId,
+      ...rest
+    };
+  }
+
+  private toAppDocument(cosmosDoc: CosmosDocument & Resource): Document {
+    const { id, numericId, createdAt, ...rest } = cosmosDoc;
+    return {
+      id: numericId,
+      createdAt: new Date(createdAt),
+      ...rest
+    };
+  }
+
+  private toAppTemplate(cosmosTemplate: CosmosTemplate & Resource): Template {
+    const { id, numericId, ...rest } = cosmosTemplate;
+    return {
+      id: numericId,
+      ...rest
+    };
+  }
+
   // User operations
   async getUser(id: number): Promise<User | undefined> {
     try {
       const container = await getContainer(CONTAINERS.USERS);
-      const { resource } = await container.item(String(id), String(id)).read();
-      return resource || undefined;
+      const querySpec = {
+        query: "SELECT * FROM c WHERE c.numericId = @id",
+        parameters: [{ name: "@id", value: id }]
+      };
+      
+      const { resources } = await container.items.query(querySpec).fetchAll();
+      if (resources.length === 0) return undefined;
+      
+      return this.toAppUser(resources[0]);
     } catch (error) {
       console.error("Error getting user by ID:", error);
       return undefined;
@@ -61,7 +111,9 @@ export class CosmosDBStorage implements IStorage {
       };
       
       const { resources } = await container.items.query(querySpec).fetchAll();
-      return resources[0] || undefined;
+      if (resources.length === 0) return undefined;
+      
+      return this.toAppUser(resources[0]);
     } catch (error) {
       console.error("Error getting user by username:", error);
       return undefined;
@@ -77,7 +129,9 @@ export class CosmosDBStorage implements IStorage {
       };
       
       const { resources } = await container.items.query(querySpec).fetchAll();
-      return resources[0] || undefined;
+      if (resources.length === 0) return undefined;
+      
+      return this.toAppUser(resources[0]);
     } catch (error) {
       console.error("Error getting user by LinkedIn ID:", error);
       return undefined;
@@ -87,15 +141,18 @@ export class CosmosDBStorage implements IStorage {
   async createUser(insertUser: InsertUser): Promise<User> {
     try {
       const container = await getContainer(CONTAINERS.USERS);
-      const id = await this.getNextId(CONTAINERS.USERS);
+      const numericId = await this.getNextId(CONTAINERS.USERS);
       
-      const newUser: User = {
-        ...insertUser,
-        id
+      const cosmosUser: CosmosUser = {
+        id: String(numericId),
+        numericId,
+        ...insertUser
       };
       
-      const { resource } = await container.items.create(newUser);
-      return resource as User;
+      const { resource } = await container.items.create(cosmosUser);
+      if (!resource) throw new Error("Failed to create user");
+      
+      return this.toAppUser(resource as CosmosUser & Resource);
     } catch (error) {
       console.error("Error creating user:", error);
       throw error;
@@ -105,19 +162,26 @@ export class CosmosDBStorage implements IStorage {
   async updateUserLinkedinToken(userId: number, token: string): Promise<User> {
     try {
       const container = await getContainer(CONTAINERS.USERS);
-      const user = await this.getUser(userId);
+      const querySpec = {
+        query: "SELECT * FROM c WHERE c.numericId = @id",
+        parameters: [{ name: "@id", value: userId }]
+      };
       
-      if (!user) {
+      const { resources } = await container.items.query(querySpec).fetchAll();
+      if (resources.length === 0) {
         throw new Error(`User with ID ${userId} not found`);
       }
       
-      const updatedUser = {
-        ...user,
+      const cosmosUser = resources[0] as CosmosUser & Resource;
+      const updatedCosmosUser = {
+        ...cosmosUser,
         linkedinToken: token
       };
       
-      const { resource } = await container.item(String(userId), String(userId)).replace(updatedUser);
-      return resource as User;
+      const { resource } = await container.item(cosmosUser.id).replace(updatedCosmosUser);
+      if (!resource) throw new Error("Failed to update user");
+      
+      return this.toAppUser(resource as CosmosUser & Resource);
     } catch (error) {
       console.error("Error updating user LinkedIn token:", error);
       throw error;
@@ -128,8 +192,15 @@ export class CosmosDBStorage implements IStorage {
   async getDocument(id: number): Promise<Document | undefined> {
     try {
       const container = await getContainer(CONTAINERS.DOCUMENTS);
-      const { resource } = await container.item(String(id), String(id)).read();
-      return resource || undefined;
+      const querySpec = {
+        query: "SELECT * FROM c WHERE c.numericId = @id",
+        parameters: [{ name: "@id", value: id }]
+      };
+      
+      const { resources } = await container.items.query(querySpec).fetchAll();
+      if (resources.length === 0) return undefined;
+      
+      return this.toAppDocument(resources[0]);
     } catch (error) {
       console.error("Error getting document by ID:", error);
       return undefined;
@@ -145,7 +216,7 @@ export class CosmosDBStorage implements IStorage {
       };
       
       const { resources } = await container.items.query(querySpec).fetchAll();
-      return resources;
+      return resources.map(doc => this.toAppDocument(doc));
     } catch (error) {
       console.error("Error getting recent documents:", error);
       return [];
@@ -155,17 +226,20 @@ export class CosmosDBStorage implements IStorage {
   async createDocument(insertDocument: InsertDocument): Promise<Document> {
     try {
       const container = await getContainer(CONTAINERS.DOCUMENTS);
-      const id = await this.getNextId(CONTAINERS.DOCUMENTS);
+      const numericId = await this.getNextId(CONTAINERS.DOCUMENTS);
       
-      const newDocument: Document = {
+      const cosmosDocument: CosmosDocument = {
+        id: String(numericId),
+        numericId,
         ...insertDocument,
-        id,
         createdAt: new Date().toISOString(),
         isModified: false
       };
       
-      const { resource } = await container.items.create(newDocument);
-      return resource as Document;
+      const { resource } = await container.items.create(cosmosDocument);
+      if (!resource) throw new Error("Failed to create document");
+      
+      return this.toAppDocument(resource as CosmosDocument & Resource);
     } catch (error) {
       console.error("Error creating document:", error);
       throw error;
@@ -175,20 +249,27 @@ export class CosmosDBStorage implements IStorage {
   async updateDocumentCustomizations(id: number, customizations: any): Promise<Document> {
     try {
       const container = await getContainer(CONTAINERS.DOCUMENTS);
-      const document = await this.getDocument(id);
+      const querySpec = {
+        query: "SELECT * FROM c WHERE c.numericId = @id",
+        parameters: [{ name: "@id", value: id }]
+      };
       
-      if (!document) {
+      const { resources } = await container.items.query(querySpec).fetchAll();
+      if (resources.length === 0) {
         throw new Error(`Document with ID ${id} not found`);
       }
       
-      const updatedDocument = {
-        ...document,
+      const cosmosDocument = resources[0] as CosmosDocument & Resource;
+      const updatedCosmosDocument = {
+        ...cosmosDocument,
         customizations,
         isModified: true
       };
       
-      const { resource } = await container.item(String(id), String(id)).replace(updatedDocument);
-      return resource as Document;
+      const { resource } = await container.item(cosmosDocument.id).replace(updatedCosmosDocument);
+      if (!resource) throw new Error("Failed to update document");
+      
+      return this.toAppDocument(resource as CosmosDocument & Resource);
     } catch (error) {
       console.error("Error updating document customizations:", error);
       throw error;
@@ -199,8 +280,15 @@ export class CosmosDBStorage implements IStorage {
   async getTemplate(id: number): Promise<Template | undefined> {
     try {
       const container = await getContainer(CONTAINERS.TEMPLATES);
-      const { resource } = await container.item(String(id), String(id)).read();
-      return resource || undefined;
+      const querySpec = {
+        query: "SELECT * FROM c WHERE c.numericId = @id",
+        parameters: [{ name: "@id", value: id }]
+      };
+      
+      const { resources } = await container.items.query(querySpec).fetchAll();
+      if (resources.length === 0) return undefined;
+      
+      return this.toAppTemplate(resources[0]);
     } catch (error) {
       console.error("Error getting template by ID:", error);
       return undefined;
@@ -215,7 +303,7 @@ export class CosmosDBStorage implements IStorage {
       };
       
       const { resources } = await container.items.query(querySpec).fetchAll();
-      return resources;
+      return resources.map(template => this.toAppTemplate(template));
     } catch (error) {
       console.error("Error getting all templates:", error);
       return [];
@@ -225,15 +313,18 @@ export class CosmosDBStorage implements IStorage {
   async createTemplate(insertTemplate: InsertTemplate): Promise<Template> {
     try {
       const container = await getContainer(CONTAINERS.TEMPLATES);
-      const id = await this.getNextId(CONTAINERS.TEMPLATES);
+      const numericId = await this.getNextId(CONTAINERS.TEMPLATES);
       
-      const newTemplate: Template = {
-        ...insertTemplate,
-        id
+      const cosmosTemplate: CosmosTemplate = {
+        id: String(numericId),
+        numericId,
+        ...insertTemplate
       };
       
-      const { resource } = await container.items.create(newTemplate);
-      return resource as Template;
+      const { resource } = await container.items.create(cosmosTemplate);
+      if (!resource) throw new Error("Failed to create template");
+      
+      return this.toAppTemplate(resource as CosmosTemplate & Resource);
     } catch (error) {
       console.error("Error creating template:", error);
       throw error;
