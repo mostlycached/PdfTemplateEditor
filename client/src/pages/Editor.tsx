@@ -36,7 +36,7 @@ export default function Editor() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [customizedCoverPageUrl, setCustomizedCoverPageUrl] = useState<string | null>(null);
   const [currentStep, setCurrentStep] = useState<'template' | 'customize' | 'preview'>('template');
-  const [showOnboarding, setShowOnboarding] = useState(true);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
 
   // Fetch document details
@@ -351,21 +351,6 @@ export default function Editor() {
                   )}
                 </h2>
                 <div className="flex space-x-2">
-                  <Button
-                    variant="default"
-                    className="bg-[#0077B5] hover:bg-[#006195] flex items-center"
-                    onClick={() => downloadPdf()}
-                    disabled={isDownloading}
-                    aria-label="Download enhanced PDF"
-                  >
-                    {isDownloading ? (
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" aria-hidden="true" />
-                    ) : (
-                      <Download className="h-4 w-4 mr-2" aria-hidden="true" />
-                    )}
-                    Download PDF
-                  </Button>
-                  
                   {isAuthenticated && (
                     <Button
                       variant="outline"
@@ -424,15 +409,19 @@ export default function Editor() {
                   
                   {previewUrl && (
                     <div className="mt-3 flex justify-center">
-                      <a 
-                        href={previewUrl} 
-                        target="_blank" 
-                        rel="noreferrer"
-                        className="flex items-center px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-sm text-gray-700 rounded-md transition-colors"
+                      <Button
+                        variant="default"
+                        className="bg-gray-100 hover:bg-gray-200 text-gray-700 flex items-center"
+                        onClick={() => downloadPdf()}
+                        disabled={isDownloading}
                       >
-                        <Download className="h-4 w-4 mr-1" />
-                        Download Original
-                      </a>
+                        {isDownloading ? (
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        ) : (
+                          <Download className="h-4 w-4 mr-2" />
+                        )}
+                        Download PDF
+                      </Button>
                     </div>
                   )}
                 </div>
