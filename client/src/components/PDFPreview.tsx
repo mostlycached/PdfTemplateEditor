@@ -115,7 +115,7 @@ export default function PDFPreview({ pdfUrl, customizedCoverPage, showSideBySide
 
   // Render side-by-side view (original and enhanced)
   const renderSideBySideView = () => {
-    if (loading || originalCoverLoading) {
+    if (loading) {
       return (
         <div className="w-full flex justify-center items-center" style={{ height: '400px' }}>
           <Loader2 className="h-8 w-8 text-[#0077B5] animate-spin" />
@@ -125,12 +125,17 @@ export default function PDFPreview({ pdfUrl, customizedCoverPage, showSideBySide
 
     return (
       <div className="flex flex-col md:flex-row gap-4 w-full">
+        {/* Original PDF panel */}
         <div className="flex-1 bg-white rounded-lg p-4 border border-gray-200">
           <div className="mb-2 text-center">
             <span className="inline-block bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded">ORIGINAL</span>
           </div>
           <div className="flex items-center justify-center h-[350px] overflow-hidden">
-            <canvas ref={originalCanvasRef} className="max-w-full max-h-full rounded-md shadow" />
+            <iframe
+              src={`${pdfUrl}#page=1`}
+              className="w-full h-full rounded-md shadow border border-gray-200"
+              title="Original PDF"
+            ></iframe>
           </div>
         </div>
 
@@ -140,26 +145,18 @@ export default function PDFPreview({ pdfUrl, customizedCoverPage, showSideBySide
           </div>
         </div>
 
+        {/* Enhanced PDF panel */}
         <div className="flex-1 bg-white rounded-lg p-4 border-2 border-[#0077B5]">
           <div className="mb-2 text-center">
             <span className="inline-block bg-yellow-100 text-yellow-800 text-xs font-semibold px-2.5 py-0.5 rounded">ENHANCED</span>
           </div>
           <div className="flex items-center justify-center h-[350px] overflow-hidden">
-            {customizedCoverPage && customizedCoverPage.endsWith('.pdf') ? (
-              <object 
-                data={customizedCoverPage}
-                type="application/pdf"
-                className="w-full h-full rounded-md"
-                aria-label="Enhanced PDF cover page"
-              >
-                <p>Your browser doesn't support PDF previews.</p>
-              </object>
-            ) : customizedCoverPage ? (
-              <img
+            {customizedCoverPage ? (
+              <iframe
                 src={customizedCoverPage}
-                alt="Enhanced cover page"
-                className="max-w-full max-h-full rounded-md shadow object-contain"
-              />
+                className="w-full h-full rounded-md"
+                title="Enhanced PDF"
+              ></iframe>
             ) : (
               <div className="text-center py-4 text-neutral-500 h-full flex flex-col justify-center items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mb-3 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -185,32 +182,22 @@ export default function PDFPreview({ pdfUrl, customizedCoverPage, showSideBySide
     }
     
     if (currentPage === 1 && customizedCoverPage) {
-      // For PDF cover pages
-      if (customizedCoverPage.endsWith('.pdf')) {
-        return (
-          <object 
-            data={customizedCoverPage} 
-            type="application/pdf" 
-            className="w-full h-[400px]"
-            aria-label="PDF document"
-          >
-            <p>Your browser doesn't support PDF previews.</p>
-          </object>
-        );
-      }
-      
-      // For image cover pages
       return (
-        <img 
-          src={customizedCoverPage} 
-          alt="Customized cover page" 
-          className="max-w-full max-h-full rounded-md shadow"
-        />
+        <iframe
+          src={customizedCoverPage}
+          className="w-full h-[400px] rounded-md border border-gray-200"
+          title="Enhanced PDF"
+        ></iframe>
       );
     }
     
+    // Show the original PDF with page number
     return (
-      <canvas ref={canvasRef} className="max-w-full max-h-full rounded-md shadow" />
+      <iframe
+        src={`${pdfUrl}#page=${currentPage}`}
+        className="w-full h-[400px] rounded-md border border-gray-200"
+        title={`PDF Page ${currentPage}`}
+      ></iframe>
     );
   };
 
