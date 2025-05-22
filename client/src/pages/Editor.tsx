@@ -409,19 +409,15 @@ export default function Editor() {
                   
                   {previewUrl && (
                     <div className="mt-3 flex justify-center">
-                      <Button
-                        variant="default"
-                        className="bg-gray-100 hover:bg-gray-200 text-gray-700 flex items-center"
-                        onClick={() => downloadPdf()}
-                        disabled={isDownloading}
+                      <a 
+                        href={previewUrl} 
+                        target="_blank" 
+                        rel="noreferrer"
+                        className="flex items-center px-3 py-1.5 bg-[#0077B5] hover:bg-[#006195] text-white text-sm rounded-md transition-colors"
                       >
-                        {isDownloading ? (
-                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        ) : (
-                          <Download className="h-4 w-4 mr-2" />
-                        )}
-                        Download PDF
-                      </Button>
+                        <Download className="h-4 w-4 mr-1" />
+                        Download Original PDF
+                      </a>
                     </div>
                   )}
                 </div>
@@ -466,7 +462,7 @@ export default function Editor() {
                     <div className="mt-3 flex justify-center">
                       <Button
                         variant="default"
-                        className="bg-[#0077B5] hover:bg-[#006195] flex items-center"
+                        className="bg-[#0077B5] hover:bg-[#006195] text-white flex items-center"
                         onClick={() => downloadPdf()}
                         disabled={isDownloading}
                       >
