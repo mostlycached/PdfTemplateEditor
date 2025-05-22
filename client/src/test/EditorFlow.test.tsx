@@ -17,7 +17,7 @@ const createTestQueryClient = () => new QueryClient({
 // Mock the document API responses
 vi.mock('../lib/queryClient', () => ({
   apiRequest: vi.fn((url) => {
-    if (url.includes('/api/documents')) {
+    if (url?.includes('/api/documents')) {
       return Promise.resolve({
         ok: true,
         json: () => Promise.resolve({
@@ -29,7 +29,7 @@ vi.mock('../lib/queryClient', () => ({
         })
       });
     }
-    if (url.includes('/api/templates')) {
+    if (url?.includes('/api/templates')) {
       return Promise.resolve({
         ok: true,
         json: () => Promise.resolve([
@@ -51,7 +51,10 @@ vi.mock('../lib/queryClient', () => ({
     return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
   }),
   getQueryFn: vi.fn(),
-  queryClient: createTestQueryClient(),
+  queryClient: {
+    invalidateQueries: vi.fn(),
+    setQueryData: vi.fn()
+  },
   throwIfResNotOk: vi.fn(),
 }));
 

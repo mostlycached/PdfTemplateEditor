@@ -32,7 +32,10 @@ vi.mock('../lib/queryClient', () => ({
     })}) 
   })),
   getQueryFn: vi.fn(),
-  queryClient: createTestQueryClient(),
+  queryClient: {
+    invalidateQueries: vi.fn(),
+    setQueryData: vi.fn()
+  },
   throwIfResNotOk: vi.fn(),
 }));
 
