@@ -291,13 +291,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'Invalid document ID' });
       }
 
+      console.log(`Attempting to download document with ID: ${documentId}`);
+
       const document = await cosmosStorage.getDocument(documentId);
       if (!document) {
+        console.error(`Document with ID ${documentId} not found for download`);
         return res.status(404).json({ message: 'Document not found' });
       }
+      
+      console.log(`Retrieved document for download:`, JSON.stringify(document));
 
+      // Check if document has customizations
       if (!document.customizations) {
-        // If no customizations, just return the original file
+        console.log(`No customizations found, returning original file`);
         const filePath = path.resolve(process.cwd(), 'uploads', 'pdfs', document.fileName);
         return res.download(filePath, document.originalName);
       }
@@ -308,19 +314,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Handle both string and object formats of customizations
         if (typeof document.customizations === 'string') {
           customizations = JSON.parse(document.customizations);
+          console.log(`Parsed customizations from string:`, customizations);
         } else {
           customizations = document.customizations;
+          console.log(`Using customizations from object:`, customizations);
         }
 
-        const template = await cosmosStorage.getTemplate(customizations.templateId);
+        const templateId = customizations.templateId;
+        console.log(`Looking for template with ID: ${templateId}`);
+        
+        const template = await cosmosStorage.getTemplate(templateId);
         if (!template) {
+          console.error(`Template with ID ${templateId} not found`);
           return res.status(404).json({ message: 'Template not found' });
         }
+        
+        console.log(`Retrieved template:`, JSON.stringify(template));
 
+        // Ensure directories exist
+        await setupDirectories();
+        
         const originalPdfPath = path.resolve(process.cwd(), 'uploads', 'pdfs', document.fileName);
-        const modifiedPdfPath = path.resolve(process.cwd(), 'uploads', 'pdfs', `modified-${document.id}.pdf`);
+        console.log(`Original PDF path: ${originalPdfPath}`);
+        
+        // Use the document ID for the modified file path
+        const modifiedPdfPath = path.resolve(process.cwd(), 'uploads', 'pdfs', `modified-${documentId}.pdf`);
+        console.log(`Modified PDF will be saved at: ${modifiedPdfPath}`);
 
+        // Generate a fresh modified PDF each time
         await generateModifiedPdf(originalPdfPath, modifiedPdfPath, template, customizations);
+        console.log(`Modified PDF generated successfully`);
 
         res.download(modifiedPdfPath, document.originalName);
       } catch (error) {
