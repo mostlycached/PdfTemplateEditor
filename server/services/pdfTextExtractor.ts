@@ -1,8 +1,8 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { PDFDocument } from 'pdf-lib';
-// Use our custom PDF parser to avoid test file loading issues
-import { parsePDF } from './pdfParser';
+// Import pdf-parse with require to avoid the test file load issue
+const pdfParse = require('pdf-parse/lib/pdf-parse.js');
 
 /**
  * Extracts text content from a PDF file using pdf-parse library
@@ -33,8 +33,8 @@ export async function extractTextFromPDF(filePath: string, maxPages: number = 3)
       max: maxPages
     };
     
-    // Parse the PDF to extract text using our custom parser
-    const data = await parsePDF(filePath, options);
+    // Parse the PDF to extract text
+    const data = await pdfParse(pdfBuffer, options);
     
     // Create a formatted text representation with metadata and content
     let extractedText = `Title: ${title}\nAuthor: ${author}\n`;
