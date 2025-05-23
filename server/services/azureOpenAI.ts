@@ -44,7 +44,9 @@ export async function analyzeWithAzureOpenAI(
           },
           {
             role: "user",
-            content: text.substring(0, 4000) // Limit text size to avoid token limits
+            content: `Please analyze the following extracted PDF text and create LinkedIn-optimized content.
+First focus on the document metadata, then analyze the actual content.
+${text.substring(0, 6000)}` // Increased limit but with better prompt structure
           }
         ],
         temperature: 0.7,
