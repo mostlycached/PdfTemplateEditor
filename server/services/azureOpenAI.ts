@@ -21,6 +21,10 @@ export async function analyzeWithAzureOpenAI(
     const baseEndpoint = endpoint.endsWith('/') ? endpoint.slice(0, -1) : endpoint;
     const apiVersion = '2023-05-15'; // Update this to the current Azure OpenAI API version
     
+    // Log the first 500 characters of the input text for debugging
+    console.log("Azure OpenAI input text (first 500 chars):", text.substring(0, 500));
+    console.log("Input text length:", text.length);
+    
     // Use Azure OpenAI's GPT model to generate content
     const response = await axios.post(
       `${baseEndpoint}/openai/deployments/gpt-4o/chat/completions?api-version=${apiVersion}`,
