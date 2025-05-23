@@ -336,14 +336,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: 'Document not found' });
       }
 
-      // Import the PDF text extractor that can extract actual content
-      const { extractTextFromPDF } = await import('./services/pdfTextExtractor');
+      // Import our simplified PDF extractor that handles errors gracefully
+      const { extractFullPDFText } = await import('./services/simplePdfExtractor');
 
       // Get the full path to the PDF file
       const pdfPath = path.resolve(process.cwd(), 'uploads', 'pdfs', document.fileName);
 
       // Extract PDF text with full content from the first 5 pages
-      const pdfText = await extractTextFromPDF(pdfPath, 5);
+      const pdfText = await extractFullPDFText(pdfPath, 5);
 
       // Check for Azure OpenAI API key
       const azureApiKey = process.env.AZURE_OPENAI_API_KEY;
