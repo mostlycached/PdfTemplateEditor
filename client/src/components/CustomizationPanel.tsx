@@ -94,8 +94,6 @@ export default function CustomizationPanel({
     <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 sticky top-6">
       <h2 className="text-xl font-medium text-neutral-900 mb-4">Customize Cover Page</h2>
       
-
-      
       {/* Text editing */}
       <div className="mb-6">
         <h3 className="text-base font-medium text-neutral-900 mb-3">Title & Text</h3>
