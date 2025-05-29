@@ -1,5 +1,5 @@
-import mysql from 'mysql2/promise';
-import { drizzle } from 'drizzle-orm/mysql2';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import postgres from 'postgres';
 import * as schema from "@shared/schema";
 
 if (!process.env.DATABASE_URL) {
@@ -8,6 +8,10 @@ if (!process.env.DATABASE_URL) {
   );
 }
 
-// Create connection pool for better performance
-export const pool = mysql.createPool(process.env.DATABASE_URL);
-export const db = drizzle(pool, { schema, mode: 'default' });
+// Create PostgreSQL connection
+const client = postgres(process.env.DATABASE_URL, {
+  ssl: 'require'
+});
+
+export const db = drizzle(client, { schema });
+export { client as pool };
