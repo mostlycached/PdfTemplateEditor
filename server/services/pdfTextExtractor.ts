@@ -1,30 +1,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { PDFDocument, PDFPage } from 'pdf-lib';
-
-// Use dynamic import to avoid the test file loading issue
-let pdfParse: any = null;
-
-async function getPdfParse() {
-  if (!pdfParse) {
-    try {
-      // Try to import pdf-parse dynamically
-      const module = await import('pdf-parse');
-      pdfParse = module.default || module;
-    } catch (error) {
-      console.error('Failed to load pdf-parse, falling back to metadata extraction:', error);
-      // Return a fallback function that extracts basic metadata
-      return async (buffer: Buffer) => ({
-        text: 'Text extraction unavailable - using metadata only',
-        numpages: 1,
-        info: {},
-        metadata: null,
-        version: '1.0'
-      });
-    }
-  }
-  return pdfParse;
-}
+import pdfParse from 'pdf-parse';
 
 export interface PDFMetadata {
   title: string;
@@ -91,8 +68,7 @@ export async function analyzePDF(filePath: string): Promise<PDFAnalysis> {
     console.log(`Analyzing PDF "${path.basename(filePath)}" - ${metadata.pageCount} pages`);
 
     // Extract text from all pages using pdf-parse
-    const pdfParseFunc = await getPdfParse();
-    const pdfData = await pdfParseFunc(pdfBuffer);
+    const pdfData = await pdfParse(pdfBuffer);
     const totalText = pdfData.text;
 
     // Get individual page content and analysis
@@ -159,8 +135,7 @@ async function extractPageText(pdfBuffer: Buffer, pageNumber: number): Promise<s
       last: pageNumber
     };
     
-    const pdfParseFunc = await getPdfParse();
-    const data = await pdfParseFunc(pdfBuffer, options);
+    const data = await pdfParse(pdfBuffer, options);
     return data.text || '';
   } catch (error) {
     console.warn(`Failed to extract text from page ${pageNumber}:`, error);
@@ -278,8 +253,7 @@ export async function extractTextFromPDF(filePath: string, maxPages: number = 3)
     };
     
     // Parse the PDF to extract text
-    const pdfParseFunc = await getPdfParse();
-    const data = await pdfParseFunc(pdfBuffer, options);
+    const data = await pdfParse(pdfBuffer, options);
     
     // Create a formatted text representation with metadata and content
     let extractedText = `Title: ${title}\nAuthor: ${author}\n`;
