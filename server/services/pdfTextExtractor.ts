@@ -1,8 +1,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { PDFDocument, PDFPage } from 'pdf-lib';
-// Import pdf-parse with require to avoid the test file load issue
-const pdfParse = require('pdf-parse/lib/pdf-parse.js');
+import pdfParse from 'pdf-parse';
 
 export interface PDFMetadata {
   title: string;
