@@ -45,11 +45,11 @@ export async function analyzeWithAzureOpenAI(
     ];
 
     // Log the final prompt being sent to OpenAI
-    console.log('=== AZURE OPENAI PROMPT ===');
-    console.log('System Message:', systemMessage);
-    console.log('User Message:', userMessage);
-    console.log('Full Messages Array:', JSON.stringify(messages, null, 2));
-    console.log('=== END PROMPT ===');
+    console.error('=== AZURE OPENAI PROMPT ===');
+    console.error('System Message:', systemMessage);
+    console.error('User Message:', userMessage);
+    console.error('Full Messages Array:', JSON.stringify(messages, null, 2));
+    console.error('=== END PROMPT ===');
 
     // Use Azure OpenAI's GPT model to generate content
     const response = await axios.post(
