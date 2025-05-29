@@ -21,28 +21,41 @@ export async function analyzeWithAzureOpenAI(
     const baseEndpoint = endpoint.endsWith('/') ? endpoint.slice(0, -1) : endpoint;
     const apiVersion = '2023-05-15'; // Update this to the current Azure OpenAI API version
     
+    // Construct the messages for the API call
+    const systemMessage = "You are an AI assistant specializing in optimizing content for LinkedIn sharing. " +
+      "Analyze the given text and extract or generate the following elements optimized for professional LinkedIn sharing: " +
+      "1. A compelling title (max 50 chars) " +
+      "2. An engaging subtitle (max 80 chars) " +
+      "3. The presenter name (if found in text) " +
+      "4. A professional summary (max 200 chars) " +
+      "5. 5-7 key phrases or topics from the content " +
+      "Respond in JSON format with these fields: title, subtitle, presenter, professionalSummary, keyPhrases (array).";
+
+    const userMessage = `Please analyze the following PDF content and generate LinkedIn-optimized suggestions:\n\n${text}`;
+
+    const messages = [
+      {
+        role: "system",
+        content: systemMessage
+      },
+      {
+        role: "user",
+        content: userMessage
+      }
+    ];
+
+    // Log the final prompt being sent to OpenAI
+    console.log('=== AZURE OPENAI PROMPT ===');
+    console.log('System Message:', systemMessage);
+    console.log('User Message:', userMessage);
+    console.log('Full Messages Array:', JSON.stringify(messages, null, 2));
+    console.log('=== END PROMPT ===');
+
     // Use Azure OpenAI's GPT model to generate content
     const response = await axios.post(
       `${baseEndpoint}/openai/deployments/gpt-4o/chat/completions?api-version=${apiVersion}`,
       {
-        messages: [
-          {
-            role: "system",
-            content: 
-              "You are an AI assistant specializing in optimizing content for LinkedIn sharing. " +
-              "Analyze the given text and extract or generate the following elements optimized for professional LinkedIn sharing: " +
-              "1. A compelling title (max 50 chars) " +
-              "2. An engaging subtitle (max 80 chars) " +
-              "3. The presenter name (if found in text) " +
-              "4. A professional summary (max 200 chars) " +
-              "5. 5-7 key phrases or topics from the content " +
-              "Respond in JSON format with these fields: title, subtitle, presenter, professionalSummary, keyPhrases (array)."
-          },
-          {
-            role: "user",
-            content: text.substring(0, 4000) // Limit text size to avoid token limits
-          }
-        ],
+        messages,
         temperature: 0.7,
         max_tokens: 500,
         response_format: { type: "json_object" }
