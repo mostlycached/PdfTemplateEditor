@@ -46,6 +46,6 @@ export async function seedTemplates() {
     }
   } catch (error) {
     console.error("Error seeding templates:", error);
-    throw error;
+    // Don't throw - let the app continue running
   }
 }

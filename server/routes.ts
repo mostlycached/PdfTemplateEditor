@@ -324,8 +324,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
 
 
-  // Seed templates if none exist
-  await seedTemplates();
+  // Seed templates if none exist (non-blocking)
+  seedTemplates().catch(error => {
+    console.warn('Database seeding failed, but server will continue:', error.message);
+  });
 
   const httpServer = createServer(app);
   return httpServer;
