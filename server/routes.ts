@@ -337,7 +337,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Import the PDF text extractor
-      const { extractTextFromPDF } = await import('./services/pdfTextExtractor');
+      const { extractTextFromPDF } = await import('./services/simplePdfExtractor');
 
       // Get the full path to the PDF file
       const pdfPath = path.resolve(process.cwd(), 'uploads', 'pdfs', document.fileName);
