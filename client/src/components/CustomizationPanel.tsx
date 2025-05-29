@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Template } from '@shared/schema';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { AlignLeft, AlignCenter, AlignRight } from 'lucide-react';
-import AzureAnalysisButton from './AzureAnalysisButton';
+
 
 interface CustomizationPanelProps {
   templateId: number;
@@ -94,23 +94,7 @@ export default function CustomizationPanel({
     <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 sticky top-6">
       <h2 className="text-xl font-medium text-neutral-900 mb-4">Customize Cover Page</h2>
       
-      {/* Azure Analysis Button for LinkedIn optimization */}
-      <div className="mb-6">
-        <AzureAnalysisButton 
-          documentId={templateId} 
-          onAnalysisComplete={(suggestions) => {
-            console.log("Applying suggestions to form:", suggestions);
-            // Make a direct update to ensure UI reflects changes
-            setCustomizations({
-              ...customizations,
-              ...suggestions
-            });
-          }} 
-        />
-        <div className="text-xs text-gray-500 text-center">
-          Uses Azure OpenAI to generate LinkedIn-optimized content from your document
-        </div>
-      </div>
+
       
       {/* Text editing */}
       <div className="mb-6">
