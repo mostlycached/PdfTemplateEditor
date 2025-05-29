@@ -1,9 +1,9 @@
-import { pgTable, text, serial, integer, boolean, timestamp, jsonb } from "drizzle-orm/pg-core";
+import { mysqlTable, text, int, boolean, timestamp, json } from "drizzle-orm/mysql-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-export const users = pgTable("users", {
-  id: serial("id").primaryKey(),
+export const users = mysqlTable("users", {
+  id: int("id").primaryKey().autoincrement(),
   username: text("username").notNull().unique(),
   password: text("password"),
   email: text("email"),
@@ -13,18 +13,18 @@ export const users = pgTable("users", {
   fullName: text("full_name"),
 });
 
-export const documents = pgTable("documents", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").references(() => users.id),
+export const documents = mysqlTable("documents", {
+  id: int("id").primaryKey().autoincrement(),
+  userId: int("user_id").references(() => users.id),
   originalName: text("original_name").notNull(),
   fileName: text("file_name").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   isModified: boolean("is_modified").default(false),
-  customizations: jsonb("customizations"),
+  customizations: json("customizations"),
 });
 
-export const templates = pgTable("templates", {
-  id: serial("id").primaryKey(),
+export const templates = mysqlTable("templates", {
+  id: int("id").primaryKey().autoincrement(),
   name: text("name").notNull(),
   imagePath: text("image_path").notNull(),
   category: text("category").notNull(),

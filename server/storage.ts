@@ -43,19 +43,22 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const [user] = await db
+    const [result] = await db
       .insert(users)
-      .values(insertUser)
-      .returning();
+      .values(insertUser);
+    
+    // Get the newly created user
+    const [user] = await db.select().from(users).where(eq(users.username, insertUser.username!));
     return user;
   }
 
   async updateUserLinkedinToken(userId: number, token: string): Promise<User> {
-    const [updatedUser] = await db
+    await db
       .update(users)
       .set({ linkedinToken: token })
-      .where(eq(users.id, userId))
-      .returning();
+      .where(eq(users.id, userId));
+    
+    const [updatedUser] = await db.select().from(users).where(eq(users.id, userId));
     return updatedUser;
   }
 
@@ -75,22 +78,31 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createDocument(insertDocument: InsertDocument): Promise<Document> {
-    const [document] = await db
+    const [result] = await db
       .insert(documents)
-      .values(insertDocument)
-      .returning();
+      .values(insertDocument);
+    
+    // Get the newly created document by filename (since it should be unique)
+    const [document] = await db.select().from(documents)
+      .where(and(
+        eq(documents.userId, insertDocument.userId!),
+        eq(documents.fileName, insertDocument.fileName)
+      ))
+      .orderBy(desc(documents.createdAt))
+      .limit(1);
     return document;
   }
 
   async updateDocumentCustomizations(id: number, customizations: any): Promise<Document> {
-    const [updatedDocument] = await db
+    await db
       .update(documents)
       .set({ 
         customizations: JSON.stringify(customizations),
         isModified: true 
       })
-      .where(eq(documents.id, id))
-      .returning();
+      .where(eq(documents.id, id));
+    
+    const [updatedDocument] = await db.select().from(documents).where(eq(documents.id, id));
     return updatedDocument;
   }
 
@@ -105,10 +117,12 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createTemplate(insertTemplate: InsertTemplate): Promise<Template> {
-    const [template] = await db
+    const [result] = await db
       .insert(templates)
-      .values(insertTemplate)
-      .returning();
+      .values(insertTemplate);
+    
+    // Get the newly created template by name (since it should be unique for our use case)
+    const [template] = await db.select().from(templates).where(eq(templates.name, insertTemplate.name));
     return template;
   }
 }
