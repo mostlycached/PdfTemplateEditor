@@ -16,7 +16,7 @@ export const pool = mysql.createPool({
   host: url.hostname,
   port: parseInt(url.port) || 3306,
   user: url.username,
-  password: url.password,
+  password: decodeURIComponent(url.password), // Decode URL-encoded password
   database: url.pathname.slice(1),
   ssl: false,
   connectTimeout: 10000,
