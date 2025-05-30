@@ -8,13 +8,9 @@ if (!process.env.AZURE_MYSQL_CONNECTION_STRING) {
   );
 }
 
-// Parse Azure MySQL connection string and create pool with proper SSL config
+// Parse Azure MySQL connection string and create pool without SSL
 const connectionString = process.env.AZURE_MYSQL_CONNECTION_STRING;
 const url = new URL(connectionString);
-
-// Extract SSL parameter from query string
-const urlParams = new URLSearchParams(url.search);
-const sslRequired = urlParams.get('ssl') === 'true' || urlParams.get('sslmode') === 'require';
 
 export const pool = mysql.createPool({
   host: url.hostname,
@@ -22,7 +18,9 @@ export const pool = mysql.createPool({
   user: url.username,
   password: url.password,
   database: url.pathname.slice(1),
-  ssl: sslRequired ? { rejectUnauthorized: false } : false
+  ssl: false,
+  connectTimeout: 10000,
+  connectionLimit: 5
 });
 
 export const db = drizzle(pool, { schema, mode: 'default' });
