@@ -359,30 +359,15 @@ async function generateCustomizedCoverPreview(document: any, template: any, cust
         font = await pdfDoc.embedFont(StandardFonts.Helvetica);
     }
     
-    // Set background (simplified implementation)
+    // Set background based on template
     const { width, height } = page.getSize();
     
     // Convert color to rgb values (0-1)
     const colorHex = customizations.colorScheme || '#0077B5';
     const color = hexToRgb(colorHex);
     
-    // Draw background
-    page.drawRectangle({
-      x: 0,
-      y: 0,
-      width,
-      height,
-      color: rgb(1, 1, 1), // White background
-    });
-    
-    // Add a colored header bar
-    page.drawRectangle({
-      x: 0,
-      y: height - 100,
-      width,
-      height: 100,
-      color: rgb(color.r, color.g, color.b),
-    });
+    // Apply template-specific design
+    applyTemplateDesign(page, template, color, width, height);
     
     // Add title
     const titleSize = getTitleSize(customizations.titleSize);
@@ -472,30 +457,15 @@ async function generateModifiedPdf(originalPdfPath: string, outputPath: string, 
         font = await newPdfDoc.embedFont(StandardFonts.Helvetica);
     }
     
-    // Set background (simplified implementation)
+    // Set background based on template
     const { width, height } = coverPage.getSize();
     
     // Convert color to rgb values (0-1)
     const colorHex = customizations.colorScheme || '#0077B5';
     const color = hexToRgb(colorHex);
     
-    // Draw background
-    coverPage.drawRectangle({
-      x: 0,
-      y: 0,
-      width,
-      height,
-      color: rgb(1, 1, 1), // White background
-    });
-    
-    // Add a colored header bar
-    coverPage.drawRectangle({
-      x: 0,
-      y: height - 100,
-      width,
-      height: 100,
-      color: rgb(color.r, color.g, color.b),
-    });
+    // Apply template-specific design
+    applyTemplateDesign(coverPage, template, color, width, height);
     
     // Add title
     const titleSize = getTitleSize(customizations.titleSize);
