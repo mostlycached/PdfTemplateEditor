@@ -76,10 +76,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'No file uploaded' });
       }
 
+      // Allow uploads without authentication - set userId as null for anonymous uploads
       let userId = null;
-      if (req.session && req.session.passport && req.session.passport.user) {
-        userId = req.session.passport.user;
-      }
 
       const document = await storage.createDocument({
         userId: userId,
