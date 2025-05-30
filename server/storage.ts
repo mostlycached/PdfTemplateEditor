@@ -83,13 +83,17 @@ export class DatabaseStorage implements IStorage {
       .values(insertDocument);
     
     // Get the newly created document by filename (since it should be unique)
-    const [document] = await db.select().from(documents)
-      .where(and(
-        eq(documents.userId, insertDocument.userId!),
-        eq(documents.fileName, insertDocument.fileName)
-      ))
+    let query = db.select().from(documents)
+      .where(eq(documents.fileName, insertDocument.fileName))
       .orderBy(desc(documents.createdAt))
       .limit(1);
+    
+    // Add userId condition only if userId is not null
+    if (insertDocument.userId !== null) {
+      query = query.where(eq(documents.userId, insertDocument.userId));
+    }
+    
+    const [document] = await query;
     return document;
   }
 
