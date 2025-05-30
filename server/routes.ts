@@ -569,3 +569,111 @@ function getTitleX(alignment?: string, width = 612) {
       return width / 2;
   }
 }
+
+function applyTemplateDesign(page: any, template: any, color: any, width: number, height: number) {
+  // White background for all templates
+  page.drawRectangle({
+    x: 0,
+    y: 0,
+    width,
+    height,
+    color: rgb(1, 1, 1),
+  });
+
+  switch (template.name) {
+    case 'Corporate Blue':
+      // Full-width header
+      page.drawRectangle({
+        x: 0,
+        y: height - 120,
+        width,
+        height: 120,
+        color: rgb(color.r, color.g, color.b),
+      });
+      break;
+
+    case 'Modern Gradient':
+      // Gradient effect simulation with multiple rectangles
+      for (let i = 0; i < 10; i++) {
+        const opacity = 0.1 + (i * 0.05);
+        page.drawRectangle({
+          x: 0,
+          y: height - 150 + (i * 10),
+          width,
+          height: 20,
+          color: rgb(color.r * opacity, color.g * opacity, color.b * opacity),
+        });
+      }
+      break;
+
+    case 'Minimal White':
+      // Thin top border only
+      page.drawRectangle({
+        x: 0,
+        y: height - 5,
+        width,
+        height: 5,
+        color: rgb(color.r, color.g, color.b),
+      });
+      break;
+
+    case 'Bold Red':
+      // Large side accent bar
+      page.drawRectangle({
+        x: 0,
+        y: 0,
+        width: 20,
+        height,
+        color: rgb(color.r, color.g, color.b),
+      });
+      // Top accent bar
+      page.drawRectangle({
+        x: 20,
+        y: height - 80,
+        width: width - 20,
+        height: 80,
+        color: rgb(color.r * 0.8, color.g * 0.8, color.b * 0.8),
+      });
+      break;
+
+    case 'Elegant Black':
+      // Sophisticated accent line
+      page.drawRectangle({
+        x: 40,
+        y: height - 100,
+        width: width - 80,
+        height: 2,
+        color: rgb(color.r, color.g, color.b),
+      });
+      break;
+
+    case 'Tech Blue':
+      // Tech-style geometric elements
+      page.drawRectangle({
+        x: 0,
+        y: height - 60,
+        width: width * 0.7,
+        height: 60,
+        color: rgb(color.r, color.g, color.b),
+      });
+      // Accent rectangles
+      page.drawRectangle({
+        x: width * 0.75,
+        y: height - 40,
+        width: width * 0.25,
+        height: 20,
+        color: rgb(color.r * 0.7, color.g * 0.7, color.b * 0.7),
+      });
+      break;
+
+    default:
+      // Default header bar
+      page.drawRectangle({
+        x: 0,
+        y: height - 100,
+        width,
+        height: 100,
+        color: rgb(color.r, color.g, color.b),
+      });
+  }
+}
